@@ -5,41 +5,51 @@
         <div class="container py-3">
             <x-breadcrumb-wrapper :breadcrumbs="[['label' => 'Trang chủ', 'url' => route('home')], ['label' => $category->name]]" />
         </div>
-        <div class="container">
+        <div class="container py-2">
             <div class="row">
                 <div class="col-3">
                     <div class="sidebar">
-                        <div class="card border-0 shadow">
-                            <div style="border-bottom: 2px solid #EB3E32">
-                                <h3 style="color: #EB3E32;">Danh mục</h3>
+                        <div class="card border-0 shadow card-2">
+                            <div style="border-bottom: 2px solid #3BBA7D; margin-bottom: 10px;">
+                                <h3 class="title">Danh mục</h3>
                             </div>
                             <div class="catList">
                                 @foreach ($categoryName as $categories)
-                                    <div class="catItem d-flex align-items-center">
-                                        <h4 class="mb-0 mr-3">{{ $categories->name }}</h4>
+                                    <div class="form-check d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"
+                                            style="width: 25px; height: 25px;">
+                                        <h4 class="mb-0 mr-3 ms-2">{{ $categories->name }}</h4>
                                         <span class="d-flex align-items-center justify-content-center rounded-circle"
-                                            style="margin-left: auto">
+                                            style="margin-left: auto;">
+                                            30
+                                        </span>
+                                    </div>
+                                @endforeach
+                                <div style="border-bottom: 2px solid #3BBA7D; margin-top: 30px; margin-bottom: 20px;">
+                                    <h3 class="title">Giá</h3>
+                                </div>
+                                <div id="range-slider"></div>
+                                <div class="value-display">Giá từ: <span id="range-values">300.000 - 50.000.000 VNĐ</span>
+                                </div>
+                                <div style="border-bottom: 2px solid #3BBA7D; margin-top: 30px;margin-bottom: 10px;">
+                                    <h3 class="title">Hãng</h3>
+                                </div>
+                                @foreach ($brands as $brand)
+                                    <div class="form-check d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"
+                                            style="width: 25px; height: 25px;">
+                                        <img class="mb-0 mr-3 ms-2" style="width:60px; height:30px; object-fit:contain"
+                                            src="{{ asset($brand->thumbnail) }}" />
+                                        <span class="d-flex align-items-center justify-content-center rounded-circle"
+                                            style="margin-left: auto;">
                                             30
                                         </span>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
-                        <div class="card border-0 shadow">
-                            <div style="border-bottom: 2px solid #EB3E32">
-                                <h3 style="color: #EB3E32;">Tìm kiếm theo giá</h3>
-                            </div>
-                            <div class="catList">
-                                @foreach ($categoryName as $categories)
-                                    <div class="catItem d-flex align-items-center">
-                                        <h4 class="mb-0 mr-3">{{ $categories->name }}</h4>
-                                        <span class="d-flex align-items-center justify-content-center rounded-circle"
-                                            style="margin-left: auto">
-                                            30
-                                        </span>
-                                    </div>
-                                @endforeach
-                            </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success">Tìm kiếm</button>
                         </div>
                     </div>
                 </div>
@@ -62,9 +72,11 @@
                                             <span class="price">{{ number_format($product->price_new, 0, ',', '.') }}
                                                 ₫</span>
 
-                                            <span
-                                                class="compare-price">{{ number_format($product->price_old, 0, ',', '.') }}
-                                                ₫</span>
+                                            @if (!is_null($product->price_old) && $product->price_old > 0)
+                                                <span class="compare-price">
+                                                    {{ number_format($product->price_old, 0, ',', '.') }} ₫
+                                                </span>
+                                            @endif
                                             <div class="action-cart">
                                                 <a class="btn-buy btn-views add_to_cart" title="Tới gian hàng"
                                                     href="#!" target="_blank">

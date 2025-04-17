@@ -70,21 +70,20 @@
                         </li>
                         <li class="d-flex">
                             <img src="{{ asset('images/icons/may-cu-24x24.png') }}" alt="">
-                            <a class="dropdown-item" href="{{ route('category.detail', 'may-cu') }}">Máy cũ, Thu cũ</a>
+                            <a class="dropdown-item" href="{{ route('category.detail', 'PC') }}">Màn hình</a>
                         </li>
                         <li class="d-flex">
                             <img src="{{ asset('images/icons/PC-24x24.png') }}" alt="">
-                            <a class="dropdown-item" href="{{ route('category.detail', 'PC') }}">Màn hình, Máy
-                                in</a>
+                            <a class="dropdown-item" href="{{ route('category.detail', 'may-in') }}">Máy in</a>
                         </li>
                         <li class="d-flex">
                             <img src="{{ asset('images/icons/sim-24x24.png') }}" alt="">
-                            <a class="dropdown-item" href="{{ route('category.detail', 'sim') }}">Sim, Thẻ cào</a>
+                            <a class="dropdown-item" href="{{ route('category.detail', 'may-choi-game') }}">Máy chơi
+                                game</a>
                         </li>
                         <li class="d-flex">
                             <img src="{{ asset('images/icons/tien-ich-24x24.png') }}" alt="">
-                            <a class="dropdown-item" href="{{ route('category.detail', 'tien-ich') }}">Dịch vụ tiện
-                                ích</a>
+                            <a class="dropdown-item" href="{{ route('category.detail', 'camera') }}">Camera</a>
                         </li>
 
                     </ul>
@@ -93,89 +92,105 @@
             <div class="col-md-9">
                 <nav class="navbar navbar-expand-lg">
                     <div class="container-fluid">
-                        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                            <ul class="navbar-nav">
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <a href="{{ route('home') }}">Trang chủ</a>
-                                </li>
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <a href="{{ route('about') }}">Giới thiệu</a>
-                                </li>
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <div class="dropdown">
-                                        <a class="dropdown-toggle" href="#" role="button"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            Sản phẩm
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'dien-thoai') }}">Điện thoại</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'laptop') }}">Laptop</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'phu-kien') }}">Phụ
-                                                    kiện</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'smartwatch') }}">Smartwatch</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'dong-ho') }}">Đồng hồ</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'tablet') }}">Tablet</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'may-cu') }}">Máy cũ, Thu cũ</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'PC') }}">Màn hình, Máy
-                                                    in</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'sim') }}">Sim, Thẻ cào</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('category.detail', 'tien-ich') }}">Dịch vụ tiện
-                                                    ích</a>
-                                            </li>
+                        <ul class="navbar-nav">
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <a href="{{ route('home') }}"
+                                    class="{{ Route::currentRouteName() == 'home' ? 'fw-bold' : '' }}">
+                                    Trang chủ
+                                </a>
+                            </li>
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <a href="{{ route('about') }}"
+                                    class="{{ Route::currentRouteName() == 'about' ? 'fw-bold' : '' }}">
+                                    Giới thiệu
+                                </a>
+                            </li>
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle" href="#" role="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        Sản phẩm
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'dien-thoai') }}">Điện thoại</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'laptop') }}">Laptop</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'phu-kien') }}">Phụ
+                                                kiện</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'smartwatch') }}">Smartwatch</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'dong-ho') }}">Đồng hồ</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'tablet') }}">Tablet</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('category.detail', 'PC') }}">Màn
+                                                hình</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'may-in') }}">Máy in</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'may-choi-game') }}">Máy chơi
+                                                game
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('category.detail', 'camera') }}">Camera</a>
+                                        </li>
 
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <a href="/">Tin mới nhất</a>
-                                </li>
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <a href="/">Câu hỏi thường gặp</a>
-                                </li>
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <a href="/">Tuyển dụng</a>
-                                </li>
-                                <li
-                                    class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
-                                    <a href="{{ route('contact') }}">Liên hệ</a>
-                                </li>
-                            </ul>
-                        </div>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <a href="{{ route('news') }}"
+                                    class="{{ Route::currentRouteName() == 'news' ? 'fw-bold' : '' }}">
+                                    Tin mới nhất
+                                </a>
+                            </li>
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <a href="{{ route('ask') }}"
+                                    class="{{ Route::currentRouteName() == 'ask' ? 'fw-bold' : '' }}">
+                                    Câu hỏi thường gặp
+                                </a>
+                            </li>
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <a href="{{ route('cruit') }}"
+                                    class="{{ Route::currentRouteName() == 'cruit' ? 'fw-bold' : '' }}">
+                                    Tuyển dụng
+                                </a>
+                            </li>
+                            <li
+                                class="me-4 nav-item d-flex justify-content-center align-items-center flex-grow-1 h-100">
+                                <a href="{{ route('contact') }}"
+                                    class="{{ Route::currentRouteName() == 'contact' ? 'fw-bold' : '' }}">
+                                    Liên hệ
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </nav>
             </div>

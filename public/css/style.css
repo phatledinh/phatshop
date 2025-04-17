@@ -241,6 +241,11 @@ header {
     padding: 8px 8px 8px 13px;
     width: calc(100% - 35px);
 }
+.header__search .input-search:focus {
+    outline: none;
+    box-shadow: none;
+    border: 0;
+}
 
 .header__search button {
     background-color: transparent;
@@ -257,11 +262,11 @@ header {
 }
 .profile {
     border-radius: 32px;
-    width: 100px;
+    width: 150px;
     display: flex;
     justify-content: center;
     text-align: center;
-    margin-right: 10px;
+    margin-right: 20px;
 }
 .profile:hover {
     background-color: #fff;
@@ -301,19 +306,23 @@ header {
 .dropdown-toggle {
     border: 0 !important;
 }
-nav .dropdown .dropdown-menu {
+.dropdown .dropdown-menu {
     width: 100%;
     border-radius: 0 !important;
 }
-nav .dropdown .dropdown-menu li {
+.dropdown .dropdown-menu li {
     width: 100%;
     padding-left: 10px;
 }
 
-nav .dropdown .dropdown-menu li .dropdown-item {
+.dropdown .dropdown-menu li .dropdown-item {
     font-size: 18px;
     font-weight: 400;
     color: #000000;
+}
+.dropdown .dropdown-menu li .dropdown-item:active {
+    background-color: transparent !important;
+    color: inherit;
 }
 /* Ẩn mega menu mặc định */
 .mega-menu {
@@ -368,15 +377,31 @@ nav .dropdown .dropdown-menu li .dropdown-item {
 }
 
 /*-------------------------------------------------------------------- Header -------------------------------------*/
-/*-------------------------------------------------------------------- Home -------------------------------------*/
-.slider .home-slide .home-slide-image {
-    width: 100%;
-    background-color: red;
+/*-------------------------------------------------------------------- Main -------------------------------------*/
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: opacity 0.2s ease;
 }
-.slider .home-slide .home-slide-image img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
+
+#scrollToTopBtn.show {
+    display: block;
+}
+
+/*-------------------------------------------------------------------- Home -------------------------------------*/
+.slider .owl-carousel .owl-nav button.owl-next {
+    right: -4px;
+}
+.slider .owl-carousel .owl-nav button.owl-prev {
+    left: -30px;
 }
 .slider .home-image {
     width: 100%;
@@ -386,7 +411,17 @@ nav .dropdown .dropdown-menu li .dropdown-item {
     height: auto;
     object-fit: contain;
 }
-
+.slick-prev,
+.slick-next {
+    width: 25px;
+    height: 25px;
+}
+.slider .slick-next:before {
+    color: #000;
+}
+.slider .slick-prev::before {
+    color: #000;
+}
 .sale-product .nav-tabs {
     background-color: #ffffff;
     border-top-left-radius: 25px;
@@ -435,7 +470,7 @@ nav .dropdown .dropdown-menu li .dropdown-item {
     left: -10px;
 }
 .owl-carousel .owl-nav button.owl-next {
-    right: -10px;
+    right: 10px;
 }
 .owl-carousel .owl-nav button.owl-prev span,
 .owl-carousel .owl-nav button.owl-next span {
@@ -486,33 +521,128 @@ nav .dropdown .dropdown-menu li .dropdown-item {
     padding-top: 10px;
 }
 /*-------------------------------------------------------------------- Home -------------------------------------*/
+/*-------------------------------------------------------------------- Login -------------------------------------*/
+.account-page {
+    align-items: center;
+    display: flex;
+}
+.account-page .main-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+.account-content {
+    padding: 20px 0;
+}
+.account-title {
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    text-align: center;
+}
+.account-subtitle {
+    color: #4c4c4c;
+    font-size: 18px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+.account-box {
+    background-color: #fff;
+    border: 1px solid #ededed;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    overflow: hidden;
+    width: 480px;
+}
+.account-wrapper {
+    padding: 30px;
+}
+.account-logo {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.account-box .account-btn {
+    background: #f43b48;
+    background: -moz-linear-gradient(left, #f43b48 0%, #453a94 100%);
+    background: -webkit-linear-gradient(left, #f43b48 0%, #453a94 100%);
+    background: -ms-linear-gradient(left, #f43b48 0%, #453a94 100%);
+    background: linear-gradient(to right, #f43b48 0%, #453a94 100%);
+    border: 0;
+    border-radius: 4px;
+    display: block;
+    font-size: 22px;
+    padding: 10px 26px;
+    width: 100%;
+}
+.account-box .account-btn:hover,
+.account-box .account-btn:focus {
+    border: 0;
+    opacity: 0.8;
+}
+.account-box .form-control {
+    background-color: #fbfbfb;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    height: 46px;
+}
+.account-box label {
+    color: #1f1f1f;
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 5px;
+}
+.account-logo img {
+    width: 100px;
+}
+.account-footer {
+    text-align: center;
+}
+.account-footer p {
+    margin-bottom: 0;
+}
+.account-footer a {
+    color: #f43b48;
+}
+.account-footer a:hover {
+    color: #f43b48;
+}
+/*-------------------------------------------------------------------- Login -------------------------------------*/
 /*-------------------------------------------------------------------- category -------------------------------------*/
-.sidebar .card {
+.sidebar .card-2 {
     padding: 25px;
     border-radius: 10px !important;
     margin-bottom: 30px;
-    height: 280px;
-    overflow-y: scroll;
 }
-.sidebar .card .catList .catItem {
-    padding: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    cursor: pointer;
-    margin: 10px 0px;
-    border-radius: 4px;
-    transition: all 0.3s ease-in-out;
+#range-slider {
+    width: 100%;
+    margin: 10px auto;
+    padding: 0;
 }
-.sidebar .card .catList .catItem:hover {
-    border: 1px solid rgba(0, 0, 0, 0.2);
+
+.value-display {
+    margin: 0px auto;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2d3748;
+    padding: 0;
 }
-.sidebar .card .catList .catItem h4 {
+.sidebar .card .title {
+    color: #3bba7d;
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.sidebar .card .catList h4 {
     color: #000;
     font-size: 16px;
 }
-.sidebar .card .catList .catItem .rounded-circle {
-    background: #eb3e32;
-    width: 20px;
-    height: 20px;
+.sidebar .card .catList .rounded-circle {
+    background: #3bba7d;
+    width: 25px;
+    height: 25px;
     color: #ffffff;
 }
 /*-------------------------------------------------------------------- category -------------------------------------*/
@@ -961,6 +1091,7 @@ ul.breadcrumb li a:hover {
     background-color: #f3f4f6;
 }
 /*-------------------------------------------------------------------- Checkout -------------------------------------*/
+/*-------------------------------------------------------------------- Main -------------------------------------*/
 /*-------------------------------------------------------------------- Footer -------------------------------------*/
 footer {
     background-color: #ffffff;

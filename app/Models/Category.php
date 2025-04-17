@@ -8,8 +8,4 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-    protected $table = 'categories'; // Chỉ định tên bảng
-
-    protected $fillable = ['id', 'name', 'slug', 'thumbnail', 'ParentID'];
-
 }

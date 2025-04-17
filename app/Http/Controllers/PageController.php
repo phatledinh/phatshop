@@ -61,6 +61,15 @@ class PageController extends Controller
     public function contact() {
         return view('contact');
     }
+    public function news() {
+        return view('news');
+    }
+    public function ask() {
+        return view('ask');
+    }
+    public function cruit() {
+        return view('cruit');
+    }
     public function cart() {
         return view('cart');
     }

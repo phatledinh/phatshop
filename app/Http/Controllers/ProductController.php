@@ -15,9 +15,10 @@ class ProductController extends Controller {
     {
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        $phoneProducts = Product::where('category_id', '1')
-                                ->limit(8)
-                                ->get();
+        $phoneProducts = Product::where('category_id', $product->category_id)
+                        ->where('id', '!=', $product->id) 
+                        ->limit(8)
+                        ->get();
                                 
         $productImages = ProductImages::where('product_id', $product->id)->get();                        
         $category = Category::find($product->category_id);

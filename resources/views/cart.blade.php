@@ -15,36 +15,33 @@
                 </h1>
                 <div class="row">
                     <div class="col-7">
-                        <div class="row rounded py-3 cart-info">
-                            <div class="col-3">
-                                <img src="{{ asset('images/products/phone/iphone-15-plus-xanh-la-128gb.jpg') }}"
-                                    alt="" style='width:100%; height:70px; object-fit:contain;'>
-                            </div>
-                            <div class="col-9">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <p class="item-title clearfix mb-2">
-                                        IPhone 15 Pro Max 1Tb Mới chính hãng
-                                    </p>
-                                    <span class="font-weight-bold ml-auto text-right"
-                                        style="color: #F9420E;">30.890.000₫</span>
+                        <div class="row rounded py-3 cart-info align-items-center mb-3 border">
+                            @foreach ($cartItems as $item)
+                                <div class="col-3">
+                                    <img src="{{ asset($item->product->thumbnail) }}" alt="{{ $item->product->name }}"
+                                        style="width:100%; height:70px; object-fit:contain;">
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="custom custom-btn-numbers clearfix input_number_product">
-                                        <button class="btn-minus btn-cts"
-                                            onclick="var result = document.getElementById('qty'); var qty = result.value; if( !isNaN(qty) &amp; qty > 1 ) result.value--;return false;"
-                                            type="button">–</button>
-                                        <input aria-label="Số lượng" class="qty input-text item_quantity" id="qty"
-                                            maxlength="3" name="quantity" onchange="if(this.value == 0)this.value=1;"
-                                            onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
-                                            size="4" type="text" value="1">
-                                        <button class="btn-plus btn-cts"
-                                            onclick="var result = document.getElementById('qty'); var qty = result.value; if( !isNaN(qty)) result.value++;return false;"
-                                            type="button">+</button>
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <p class="item-title mb-0 font-weight-bold">{{ $item->product->product_name }}</p>
+                                        <span
+                                            class="text-danger font-weight-bold">{{ number_format($item->product->price_new) }}₫</span>
                                     </div>
-                                    <button class="btn btn-outline-danger remove ml-auto js-remove-item-cart" title="Xoá"
-                                        data-variantid="124501900">Xoá</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="custom input_number_product d-flex align-items-center">
+                                            <button class="btn btn-sm btn-outline-secondary btn-minus" type="button"
+                                                onclick="updateQuantity({{ $item->id }}, -1)">−</button>
+                                            <input type="text" class="form-control mx-2 text-center item_quantity"
+                                                value="{{ $item->quantity }}" id="qty-{{ $item->id }}"
+                                                onchange="manualQuantity({{ $item->id }})" style="width: 60px;">
+                                            <button class="btn btn-sm btn-outline-secondary btn-plus" type="button"
+                                                onclick="updateQuantity({{ $item->id }}, 1)">+</button>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger js-remove-item-cart ml-3"
+                                            onclick="removeItem({{ $item->id }})" title="Xoá">Xoá</button>
+                                    </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                     <div class="col-5">
