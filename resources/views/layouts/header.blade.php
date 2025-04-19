@@ -6,9 +6,9 @@
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="img-fluid">
         </a>
 
-        <form action="/tim-kiem" class="header__search ">
+        <form action="{{ route('product.search') }}" class="header__search ">
             <input id="skw" type="text" class="input-search" placeholder="Bạn tìm gì..." name="key"
-                autocomplete="off" maxlength="100">
+                value="{{ request('search') }}">
             <button type="submit" aria-label="button suggest search">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -47,7 +47,26 @@
             <div class="box-cart">
                 <a href="{{ route('cart.view') }}">
                     <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
-                    <span class="cart-number">0</span>
+                    <span class="cart-number rounded-circle bg-danger">
+                        @php
+                            $cartCount = 0;
+                            if (Auth::check()) {
+                                $cartCount = \App\Models\CartItem::where('user_id', Auth::id())
+                                    ->distinct('product_id')
+                                    ->count('product_id');
+                                Log::info('Cart count for user', ['user_id' => Auth::id(), 'count' => $cartCount]);
+                            } else {
+                                $cartId = session('cart_id');
+                                if ($cartId) {
+                                    $cartCount = \App\Models\CartItem::where('cart_id', $cartId)
+                                        ->distinct('product_id')
+                                        ->count('product_id');
+                                    Log::info('Cart count for guest', ['cart_id' => $cartId, 'count' => $cartCount]);
+                                }
+                            }
+                        @endphp
+                        {{ $cartCount }}
+                    </span>
                 </a>
             </div>
         </div>

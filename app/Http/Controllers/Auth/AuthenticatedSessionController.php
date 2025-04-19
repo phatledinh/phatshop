@@ -9,7 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-
+use App\Http\Controllers\CartController;
+use Illuminate\Support\Facades\Log;
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -23,13 +24,18 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
-
-        $request->session()->regenerate();
-
-        return redirect()->intended(RouteServiceProvider::HOME);
+        try {
+            $request->authenticate();
+            $request->session()->regenerate();
+            (new CartController)->mergeCartAfterLogin();
+            return redirect()->route('home'); // Luôn về /home
+        } catch (\Exception $e) {
+            Log::error('Login error: ' . $e->getMessage());
+            return redirect()->route('login')->withErrors(['error' => 'Đăng nhập thất bại, vui lòng thử lại.']);
+        }
     }
 
     /**

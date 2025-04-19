@@ -27,6 +27,9 @@ class CreateProductsTable extends Migration
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->foreign('brand_id')->references('id')->on('brands')->onDelete('set null');
             $table->timestamps();
+
+            // Tạo chỉ mục toàn văn cho các cột cần tìm kiếm
+            $table->index(['product_name', 'description'], 'product_fulltext_index', 'fulltext');  // Chỉ mục toàn văn
         });
     }
 

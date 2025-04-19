@@ -7,7 +7,7 @@
                         aria-expanded="false">
                         Danh mục sản phẩm
                     </button>
-                    <ul class="dropdown-menu show">
+                    <ul class="dropdown-menu" id="nav-dropdown-menu">
                         <li class="d-flex">
                             <img src="{{ asset('images/icons/phonne-24x24.png') }}" alt="">
                             <a class="dropdown-item" href="{{ route('category.detail', 'dien-thoai') }}">Điện thoại</a>

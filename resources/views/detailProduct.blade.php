@@ -41,7 +41,7 @@
                                     <span>{{ number_format($product->price_old, 0, ',', '.') }}₫</span>
                                 </p>
                             </div>
-
+                            item_quantity
                             <div class="product-quantity">
                                 <p class="quantity">Số lượng:</p>
                             </div>
@@ -50,8 +50,8 @@
                                 <button class="btn-minus btn-cts"
                                     onclick="var result = document.getElementById('qty'); var qty = result.value; if( !isNaN(qty) &amp; qty > 1 ) result.value--;return false;"
                                     type="button">–</button>
-                                <input aria-label="Số lượng" class="qty input-text item_quantity" id="qty"
-                                    maxlength="3" name="quantity" onchange="if(this.value == 0)this.value=1;"
+                                <input aria-label="Số lượng" class="qty input-text " id="qty" maxlength="3"
+                                    name="quantity" onchange="if(this.value == 0)this.value=1;"
                                     onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
                                     size="4" type="text" value="1">
                                 <button class="btn-plus btn-cts"

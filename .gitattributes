@@ -1,11 +1,10 @@
-* text=auto
+# Chuẩn hóa tất cả tệp văn bản thành LF khi commit
+* text=auto eol=lf
 
-*.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
-
-/.github export-ignore
-CHANGELOG.md export-ignore
-.styleci.yml export-ignore
+# Đảm bảo các tệp nhị phân không bị thay đổi
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

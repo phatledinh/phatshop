@@ -15,13 +15,55 @@
                 </h1>
                 <div class="row">
                     <div class="col-7">
+                        <div class="rounded py-1 cart-info d-flex justify-content-between align-items-center mb-3 border">
+                            <div class="allCheck d-flex align-items-center ms-2" style="padding-left: 5px">
+                                <div class="form-check me-1">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"
+                                        style="width: 30px; height: 30px; border: 1px #000 solid" checked>
+                                </div>
+                                <span class="cart-number">
+                                    @php
+                                        $cartCount = 0;
+                                        if (Auth::check()) {
+                                            $cartCount = \App\Models\CartItem::where('user_id', Auth::id())->sum(
+                                                'quantity',
+                                            );
+                                            Log::info('Cart count for user', [
+                                                'user_id' => Auth::id(),
+                                                'count' => $cartCount,
+                                            ]);
+                                        } else {
+                                            $cartId = session('cart_id');
+                                            if ($cartId) {
+                                                $cartCount = \App\Models\CartItem::where('cart_id', $cartId)->sum(
+                                                    'quantity',
+                                                );
+                                                Log::info('Cart count for guest', [
+                                                    'cart_id' => $cartId,
+                                                    'count' => $cartCount,
+                                                ]);
+                                            }
+                                        }
+                                    @endphp
+                                    Chọn tất cả ({{ $cartCount }})
+                                </span>
+                            </div>
+                            <div class="allClear me-2">
+                                <a class="btn btn-clearcart btn-dark rounded font-weight-bold" href="#!" role="button"
+                                    title="Xoá tất cả"><i class="fa-solid fa-trash"></i>Xoá tất cả</a>
+                            </div>
+                        </div>
                         <div class="row rounded py-3 cart-info align-items-center mb-3 border">
                             @foreach ($cartItems as $item)
-                                <div class="col-3">
+                                <div class="col-3 d-flex align-items-center mb-3" id="cart-item-{{ $item->id }}">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"
+                                            style="width: 30px; height: 30px; border: 1px #000 solid" checked>
+                                    </div>
                                     <img src="{{ asset($item->product->thumbnail) }}" alt="{{ $item->product->name }}"
                                         style="width:100%; height:70px; object-fit:contain;">
                                 </div>
-                                <div class="col-9">
+                                <div class="col-9 mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <p class="item-title mb-0 font-weight-bold">{{ $item->product->product_name }}</p>
                                         <span
@@ -33,12 +75,14 @@
                                                 onclick="updateQuantity({{ $item->id }}, -1)">−</button>
                                             <input type="text" class="form-control mx-2 text-center item_quantity"
                                                 value="{{ $item->quantity }}" id="qty-{{ $item->id }}"
-                                                onchange="manualQuantity({{ $item->id }})" style="width: 60px;">
+                                                onchange="manualQuantity({{ $item->id }})"
+                                                style="border-left: #ccc solid 1px; border-right: #ccc solid 1px">
                                             <button class="btn btn-sm btn-outline-secondary btn-plus" type="button"
                                                 onclick="updateQuantity({{ $item->id }}, 1)">+</button>
                                         </div>
                                         <button class="btn btn-sm btn-outline-danger js-remove-item-cart ml-3"
-                                            onclick="removeItem({{ $item->id }})" title="Xoá">Xoá</button>
+                                            onclick="removeItem({{ $item->id }})" title="Xoá"> <i
+                                                class="fa-solid fa-trash"></i> Xoá</button>
                                     </div>
                                 </div>
                             @endforeach
@@ -47,19 +91,18 @@
                     <div class="col-5">
                         <div class="payment-info d-flex justify-content-between rounded">
                             <p class="text-uppercase ms-2">Tổng tiền</p>
-                            <p class="cart__summary_total font-weight-bold me-2">30.890.000&nbsp;₫</p>
+                            <p class="cart__summary_total font-weight-bold me-2">
+                                {{ number_format($totalPrice, 0, ',', '.') }}đ</p>
                         </div>
                         <a class="btn btn-checkout rounded" href="{{ route('checkout') }}" role="button">ĐẶT
                             HÀNG<br><small>Trả
                                 sau hoặc trả online miễn phí</small></a>
-                        <a class="btn btn-clearcart btn-dark rounded w-100 font-weight-bold mb-4 mt-2" href="#!"
-                            role="button" title="Xoá tất cả">Xoá tất cả</a>
                         <div class="m_giftbox mb-3">
                             <fieldset class="free-gifts p-3 pb-2 pb-md-3 rounded position-relative">
-                                <legend class="d-inline-block pl-3 pr-3 mb-0">
+                                <legend class="d-flex align-items-center mb-0">
                                     <img alt="Ưu Đãi"
                                         src="//bizweb.dktcdn.net/thumb/icon/100/177/937/themes/881538/assets/gift.gif?1741848900725">
-                                    Ưu Đãi
+                                    <span class="fw-600 fs-3 ms-1">Ưu Đãi</span>
                                 </legend>
                                 <div class="row">
                                     <div class="col-12 col-md-6 col-lg-6 col-xl-12">

@@ -41,15 +41,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const dropdownMenu = document.querySelector(".dropdown-menu");
-            const dropdownButton = document.querySelector(".dropdown button");
-
-            if (window.location.pathname !== "/" && window.location.pathname !== "/home") {
-                dropdownMenu.classList.remove("show"); // Ẩn danh mục
-                dropdownButton.classList.add("dropdown-toggle")
+            const navDropdownMenu = document.querySelector("#nav-dropdown-menu");
+            const navDropdownButton = document.querySelector("#dropdownMenuButton1");
+            const isHomePage = window.location.pathname === "/" || window.location.pathname === "/home";
+            if (isHomePage) {
+                navDropdownMenu.classList.add("show");
+                navDropdownButton.classList.remove("dropdown-toggle");
+            } else {
+                navDropdownMenu.classList.remove("show");
+                navDropdownButton.classList.add("dropdown-toggle");
             }
-
-
         });
     </script>
     <script>
@@ -198,7 +199,7 @@
         });
     </script>
     <script src="{{ asset('js/index.js') }}"></script>
-
+    <script src="{{ asset('js/cart.js') }}"></script>
 </body>
 
 </html>
