@@ -76,4 +76,10 @@ class PageController extends Controller
     public function checkout() {
         return view('checkout');
     }
+    public function success() {
+        return view('order_success');
+    }
+    public function dashboard() {
+        return view('admin/pages/home');
+    }
 }

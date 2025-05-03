@@ -8,12 +8,9 @@
     <title>PhatShop</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
-    <!-- Import Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Import CSS tùy chỉnh -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
-    <!-- Import Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
@@ -22,9 +19,7 @@
 </head>
 
 <body>
-
     @include('layouts.header')
-
     @include('layouts.nav')
     <main>
         <button id="scrollToTopBtn" class="btn btn-warning me-auto">↑</button>
@@ -32,13 +27,15 @@
     </main>
     @include('layouts.footer')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- ElevateZoom-Plus -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
-    <!-- Fancybox (Lightbox) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+    <script src="{{ asset('js/index.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const navDropdownMenu = document.querySelector("#nav-dropdown-menu");
@@ -52,34 +49,22 @@
                 navDropdownButton.classList.add("dropdown-toggle");
             }
         });
-    </script>
-    <script>
         $(document).ready(function() {
-            // Khởi tạo ElevateZoom với Gallery
             $("#zoom_09").elevateZoom({
                 gallery: "gallery_09",
                 galleryActiveClass: "active",
                 zoomType: "inner",
                 cursor: "crosshair"
             });
-
-            // Kích hoạt Fancybox (Lightbox)
             $("#gallery_09 a").fancybox();
-
-            // Khi click vào thumbnail, đổi ảnh zoom
             $("#gallery_09 a").on("click", function(e) {
                 e.preventDefault();
                 var zoomInstance = $("#zoom_09").data('elevateZoom');
-
                 $("#zoom_09").attr("src", $(this).data("image"))
                     .data("zoom-image", $(this).data("zoom-image"));
-
                 zoomInstance.swaptheimage($(this).data("image"), $(this).data("zoom-image"));
             });
         });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-    <script>
         $(document).ready(function() {
             $("#carousel-1").owlCarousel({
                 loop: false,
@@ -121,8 +106,6 @@
                 }
             });
         });
-    </script>
-    <script>
         $(window).scroll(function() {
             if ($(this).scrollTop() > 100) {
                 $('#scrollToTopBtn').fadeIn();
@@ -130,43 +113,12 @@
                 $('#scrollToTopBtn').fadeOut();
             }
         });
-
         $('#scrollToTopBtn').click(function() {
             $('html, body').animate({
                 scrollTop: 0
             }, 'slow');
             return false;
         });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
-    <script>
-        const slider = document.getElementById('range-slider');
-        const display = document.getElementById('range-values');
-
-        // Hàm định dạng tiền VNĐ
-        function formatCurrency(value) {
-            return parseInt(value).toLocaleString('vi-VN') + 'Đ';
-        }
-
-        noUiSlider.create(slider, {
-            start: [300000, 20000000], // giá trị bắt đầu
-            connect: true,
-            step: 100000, // bước nhảy
-            range: {
-                min: 300000,
-                max: 50000000
-            },
-            format: {
-                to: value => formatCurrency(value),
-                from: value => Number(value.replace(/[^\d]/g, '')) // loại bỏ chữ và dấu chấm phẩy
-            }
-        });
-
-        slider.noUiSlider.on('update', (values, handle, unencoded) => {
-            display.textContent = `${formatCurrency(unencoded[0])} - ${formatCurrency(unencoded[1])}`;
-        });
-    </script>
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.add_to_cart').forEach(function(btn) {
                 btn.addEventListener('click', function() {
@@ -187,19 +139,39 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert(data.message);
-                                // TODO: cập nhật số lượng giỏ hàng ở header nếu muốn
+                                document.querySelector('.cart-number').textContent = data
+                                    .cartCount;
+                                Swal.fire({
+                                    title: "Thành công!",
+                                    text: "Sản phẩm đã được thêm vào giỏ hàng!",
+                                    icon: "success",
+                                    confirmButtonText: "OK",
+                                });
                             } else {
-                                alert('Thêm vào giỏ hàng thất bại.');
+                                Swal.fire({
+                                    title: 'Lỗi!',
+                                    text: data.message || 'Thêm vào giỏ hàng thất bại',
+                                    icon: 'error',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         })
-                        .catch(error => console.error('Lỗi:', error));
+                        .catch(error => {
+                            console.error('Lỗi:', error);
+                            Swal.fire({
+                                title: 'Lỗi!',
+                                text: 'Lỗi kết nối, vui lòng thử lại!',
+                                icon: 'error',
+                                showConfirmButton: true,
+                                confirmButtonText: 'OK'
+                            });
+                        });
                 });
             });
         });
     </script>
-    <script src="{{ asset('js/index.js') }}"></script>
-    <script src="{{ asset('js/cart.js') }}"></script>
+    @yield('scripts')
 </body>
 
 </html>

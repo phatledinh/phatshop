@@ -12,6 +12,7 @@ class Product extends Model
 {
     protected $fillable = [
         'category_id',
+        'brand_id',
         'product_name',
         'price_new',
         'price_old',
@@ -20,7 +21,9 @@ class Product extends Model
         'discount',
         'suggestion',
         'slug',
-        'giftbox'
+        'giftbox',
+        'stock',
+        'sold',
     ];
 
     public function category(): BelongsTo
@@ -31,5 +34,9 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class, 'product_id');
+    }
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
     }
 }

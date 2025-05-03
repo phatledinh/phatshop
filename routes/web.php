@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
-
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ReviewController;
+use App\Models\Order;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/gioi-thieu', [PageController::class, 'about'])->name('about');
@@ -18,14 +20,36 @@ Route::get('/gio-hang', [CartController::class, 'viewCart'])->name('cart.view');
 Route::post('/gio-hang', [CartController::class, 'addToCart'])->name('cart');
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::put('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+Route::post('/cart/remove-selected', [CartController::class, 'removeSelected'])->name('cart.removeSelected');
 Route::get('/search', [ProductController::class, 'search'])->name('product.search');
-Route::get('/thanh-toan', [PageController::class, 'checkout'])->name('checkout');
+Route::post('/checkout/store-cart-items', [CheckoutController::class, 'storeCartItems'])->name('checkout.store')->middleware('auth');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.process')->middleware('auth');
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout')->middleware('auth');
+
+
+Route::post('/order', [CheckoutController::class, 'store'])->name('order.store')->middleware('auth');
 Route::get('product/{slug}', [ProductController::class, 'show'])->name('product.detail');
 Route::get('category/{slug}', [CategoryController::class, 'show'])->name('category.detail');
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::post('/category/{slug}/filter', [CategoryController::class, 'filter'])->name('category.filter');
+Route::post('/product/{slug}/review', [ReviewController::class, 'store'])->name('product.review.store');
+
+// Method Payment
+Route::post('/momo/payment', [CheckoutController::class, 'momo_payment'])->name('momo.payment');
+Route::post('/momo/callback', [CheckoutController::class, 'momoCallback'])->name('momo.callback')->middleware('throttle:60,1');
+Route::get('/momo/return', [CheckoutController::class, 'momoReturn'])->name('momo.return');
+Route::get('/vnpay-return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/order/success', function () {
+    return view('order_success');
+})->name('order_success');
+
+Route::get('/admin', [PageController::class, 'dashboard'])->name('admin');
+Route::get('/admin/danh-sach-san-pham', [ProductController::class, 'listProduct'])->name('listProduct');
+Route::get('/admin/them-san-pham', [ProductController::class, 'create'])->name('products.create');
+Route::post('/admin/them-san-pham', [ProductController::class, 'store'])->name('products.store');
+Route::post('/upload-image', [ProductController::class, 'uploadImage'])->name('upload.image');
+Route::get('/get-brands-by-category', [ProductController::class, 'getBrandsByCategory'])->name('get.brands.by.category');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

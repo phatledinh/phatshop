@@ -33,7 +33,7 @@
                     <li class="w-100"><img src="{{ asset('images/icons/ravpower.png') }}" alt=""></li>
                     <li class="w-100"><img src="{{ asset('images/icons/taotronics.png') }}" alt=""></li>
                     <li class="w-100"><img src="{{ asset('images/icons/wonlex1.png') }}" alt=""></li>
-                    <li class="w-100"><img src="{{ asset('images/icons/TbBoCongThuong.png') }}" alt=""></li>
+                    <li class="w-60"><img src="{{ asset('images/icons/TbBoCongThuong.png') }}" alt=""></li>
                 </ul>
             </div>
             <div class="col-3">

@@ -1,5 +1,4 @@
 <!-- resources/views/layouts/header.blade.php -->
-<!-- resources/views/layouts/header.blade.php -->
 <header>
     <div class="container d-flex justify-content-between align-items-center">
         <a href="/" class="header__logo" aria-label="logo">
@@ -47,28 +46,37 @@
             <div class="box-cart">
                 <a href="{{ route('cart.view') }}">
                     <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
-                    <span class="cart-number rounded-circle bg-danger">
-                        @php
-                            $cartCount = 0;
-                            if (Auth::check()) {
-                                $cartCount = \App\Models\CartItem::where('user_id', Auth::id())
+                    @php
+                        $cartCount = 0;
+                        if (Auth::check()) {
+                            $cartCount = \App\Models\CartItem::where('user_id', Auth::id())
+                                ->distinct('product_id')
+                                ->count('product_id');
+                            Log::info('Cart count for user', ['user_id' => Auth::id(), 'count' => $cartCount]);
+                        } else {
+                            $cartId = session('cart_id');
+                            if ($cartId) {
+                                $cartCount = \App\Models\CartItem::where('cart_id', $cartId)
                                     ->distinct('product_id')
                                     ->count('product_id');
-                                Log::info('Cart count for user', ['user_id' => Auth::id(), 'count' => $cartCount]);
-                            } else {
-                                $cartId = session('cart_id');
-                                if ($cartId) {
-                                    $cartCount = \App\Models\CartItem::where('cart_id', $cartId)
-                                        ->distinct('product_id')
-                                        ->count('product_id');
-                                    Log::info('Cart count for guest', ['cart_id' => $cartId, 'count' => $cartCount]);
-                                }
+                                Log::info('Cart count for guest', ['cart_id' => $cartId, 'count' => $cartCount]);
                             }
-                        @endphp
-                        {{ $cartCount }}
-                    </span>
+                        }
+                    @endphp
+                    <span class="js-cart-count rounded-circle bg-danger cart-number">{{ $cartCount }}</span>
                 </a>
             </div>
         </div>
     </div>
 </header>
+
+<script>
+    document.addEventListener('updateCartCount', function(event) {
+        const cartCountElement = document.querySelector('.js-cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = event.detail.count;
+        } else {
+            console.warn("Cart count element (.js-cart-count) not found in header");
+        }
+    });
+</script>

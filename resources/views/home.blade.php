@@ -463,7 +463,7 @@
                 <div class="col-lg-3 col-md-3 col-8">
                     <div class="item_blog_base">
                         <a class="thumb" href="#!" title="">
-                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="">
+                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="" style="height: 162px;">
                         </a>
                         <p>Trên tay Nothing Phone (3a) Pro: Thiết kế trong suốt đầy ấn tượng, hiệu năng mạnh mẽ trong tầm
                             giá</p>

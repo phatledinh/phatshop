@@ -20,6 +20,9 @@ ul {
     padding-left: 0;
     margin-left: 0;
 }
+.swal2-checkbox {
+    display: none !important;
+}
 
 /*-------------------------------------------Product -------------------------------------*/
 .product-thumbnail {
@@ -389,7 +392,6 @@ header {
     font-size: 14px;
     font-weight: 500;
 }
-
 /*-------------------------------------------------------------------- Header -------------------------------------*/
 /*-------------------------------------------------------------------- Main -------------------------------------*/
 #scrollToTopBtn {
@@ -508,23 +510,27 @@ header {
 .banner-offers .row .col-3 img:hover {
     transform: scale(1.05);
 }
-.section_blog .item_blog_base {
+.item_blog_base {
     width: 100%;
 }
-.section_blog .item_blog_base .thumb {
+.item_blog_base .thumb {
     width: 100%;
 }
-.section_blog .item_blog_base .thumb img {
+.item_blog_base .thumb img {
     width: 100%;
-    height: 162px;
+    height: auto;
     object-fit: cover;
     transition: transform 0.3s ease;
     border-radius: 5px;
 }
-.section_blog .item_blog_base .thumb img:hover {
+.item_blog_base .thumb img:hover {
     transform: scale(1.05);
 }
-.section_blog .item_blog_base p {
+.item_blog_base h4 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.item_blog_base p {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
@@ -535,6 +541,12 @@ header {
     padding-top: 10px;
 }
 /*-------------------------------------------------------------------- Home -------------------------------------*/
+/*-------------------------------------------------------------------- News -------------------------------------*/
+.news .nav-tabs .nav-item .active {
+    border-radius: 0px;
+    background-color: red;
+}
+/*-------------------------------------------------------------------- News -------------------------------------*/
 /*-------------------------------------------------------------------- Login -------------------------------------*/
 .account-page {
     align-items: center;
@@ -746,7 +758,7 @@ label {
 .group_contact .form-group input,
 .group_contact .form-group textarea {
     border-color: #f7f7f7;
-    background-color: #f7f7f7;
+    background-color: #ffffff;
     margin-bottom: 0;
 }
 .form-group .form-control {
