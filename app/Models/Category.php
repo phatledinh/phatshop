@@ -10,7 +10,7 @@ class Category extends Model
     use HasFactory;
     protected $table = 'categories'; // Chỉ định tên bảng
 
-    protected $fillable = ['id', 'name', 'thumbnail'];
+    protected $fillable = ['id', 'name', 'thumbnail','ParentID'];
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');
@@ -18,5 +18,9 @@ class Category extends Model
     public function brands()
     {
         return $this->hasMany(Brand::class, 'category_id');
+    }
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'ParentID');
     }
 }

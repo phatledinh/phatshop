@@ -8,16 +8,18 @@
             <li class="breadcrumb-item active">Thêm sản phẩm</li>
         </ol>
 
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
         <div class="card mb-4">
-            <div class="card-header">
-                Thêm sản phẩm
-            </div>
+            <div class="card-header">Thêm sản phẩm</div>
             <div class="card-body">
                 <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -49,17 +51,18 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="brand_id" class="form-label">Hãng</label>
+                        <select name="brand_id" id="brand_id" class="form-control @error('brand_id') is-invalid @enderror"
+                            required>
+                            <option value="">Chọn hãng</option>
+                        </select>
+                        @error('brand_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="brand_id" class="form-label">Hãng</label>
-                            <select name="brand_id" id="brand_id"
-                                class="form-control @error('brand_id') is-invalid @enderror" required>
-                                <option value="">Chọn hãng</option>
-                            </select>
-                            @error('brand_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
                         <div class="col-md-6">
                             <label for="price_new" class="form-label">Giá mới</label>
                             <input type="number" name="price_new" id="price_new"
@@ -69,9 +72,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-
-                    <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="price_old" class="form-label">Giá cũ (nếu có)</label>
                             <input type="number" name="price_old" id="price_old"
@@ -81,36 +81,16 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="col-md-6">
-                            <label for="discount" class="form-label">Giảm giá (%)</label>
-                            <input type="number" name="discount" id="discount"
-                                class="form-control @error('discount') is-invalid @enderror"
-                                value="{{ old('discount', 0) }}" min="0" max="100" required>
-                            @error('discount')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="stock" class="form-label">Trong kho</label>
-                            <input type="number" name="stock" id="stock"
-                                class="form-control @error('stock') is-invalid @enderror" value="{{ old('stock', 0) }}"
-                                min="0" required>
-                            @error('stock')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="sold" class="form-label">Đã bán</label>
-                            <input type="number" name="sold" id="sold"
-                                class="form-control @error('sold') is-invalid @enderror" value="{{ old('sold', 0) }}"
-                                min="0" required>
-                            @error('sold')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <div class="mb-3">
+                        <label for="stock" class="form-label">Trong kho</label>
+                        <input type="number" name="stock" id="stock"
+                            class="form-control @error('stock') is-invalid @enderror" value="{{ old('stock', 0) }}"
+                            min="0" required>
+                        @error('stock')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="mb-3">
@@ -123,10 +103,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="sortDesc" class="form-label">Mô tả ngắn</label>
-                        <textarea name="sortDesc" id="sortDesc" class="form-control @error('sortDesc') is-invalid @enderror"
-                            rows="4">{{ old('sortDesc') }}</textarea>
-                        @error('sortDesc')
+                        <label for="related_images" class="form-label">Ảnh sản phẩm liên quan</label>
+                        <input type="file" name="related_images[]" id="related_images"
+                            class="form-control @error('related_images.*') is-invalid @enderror" accept="image/*" multiple>
+                        @error('related_images.*')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -168,13 +148,50 @@
         </div>
     </div>
 
+    <!-- Tích hợp SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Tích hợp Summernote -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
-    <!-- File ngôn ngữ (nếu cần, đặt sau summernote.min.js) -->
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-en-US.js"></script>
+
+    <style>
+        .image-preview img {
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .image-preview img.thumbnail-preview {
+            border: 2px solid blue;
+            width: 150px;
+        }
+
+        .image-preview img.related-image-preview {
+            border: 1px solid gray;
+            width: 100px;
+        }
+
+        .image-preview div {
+            position: relative;
+            margin: 5px;
+        }
+    </style>
+
     <script>
         $(document).ready(function() {
+            // Hiển thị SweetAlert2 nếu có session success
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: '{{ session('success') }}',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+
+            // Summernote cho description
             $('#description').summernote({
                 height: 400,
                 toolbar: [
@@ -183,11 +200,14 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['insert', ['link', 'picture', 'table']]
                 ],
+                fontNames: [],
+                fontNamesIgnoreCheck: [],
+                addDefaultFonts: false,
+                styleTags: [],
                 callbacks: {
                     onImageUpload: function(files) {
                         let formData = new FormData();
                         formData.append('file', files[0]);
-
                         $.ajax({
                             url: "{{ route('upload.image') }}",
                             method: 'POST',
@@ -203,28 +223,30 @@
                                 }
                             },
                             error: function() {
-                                alert('Upload image failed');
+                                alert('Tải ảnh thất bại');
                             }
                         });
                     }
                 }
             });
 
+            // Summernote cho giftbox
             $('#giftbox').summernote({
                 height: 200,
                 toolbar: [
                     ['font', ['bold', 'italic']],
                     ['para', ['ul', 'ol']]
-                ]
+                ],
+                fontNames: [],
+                fontNamesIgnoreCheck: [],
+                addDefaultFonts: false,
+                styleTags: [],
+                callbacks: {}
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            // Khi danh mục thay đổi
+
+            // AJAX cho brands
             $('#category_id').on('change', function() {
                 let categoryId = $(this).val();
-
                 if (categoryId) {
                     $.ajax({
                         url: "{{ route('get.brands.by.category') }}",
@@ -233,9 +255,8 @@
                             category_id: categoryId
                         },
                         success: function(data) {
-                            $('#brand_id').empty();
-                            $('#brand_id').append('<option value="">Chọn hãng</option>');
-
+                            $('#brand_id').empty().append(
+                                '<option value="">Chọn hãng</option>');
                             $.each(data.brands, function(key, brand) {
                                 $('#brand_id').append('<option value="' + brand.id +
                                     '">' + brand.name + '</option>');
@@ -246,15 +267,79 @@
                         }
                     });
                 } else {
-                    $('#brand_id').empty();
-                    $('#brand_id').append('<option value="">Chọn hãng</option>');
+                    $('#brand_id').empty().append('<option value="">Chọn hãng</option>');
                 }
             });
 
-            // Nếu có old input (trường hợp form lỗi), tự động load lại hãng
             @if (old('category_id'))
                 $('#category_id').trigger('change');
             @endif
+
+            // Xem trước ảnh
+            const previewContainer = $(
+                '<div class="image-preview mt-2" style="display: flex; flex-wrap: wrap;"></div>');
+            $('#related_images').after(previewContainer);
+
+            function addRemoveButton(img) {
+                const removeBtn = $('<button>').text('X')
+                    .css({
+                        'position': 'absolute',
+                        'top': '0',
+                        'right': '0',
+                        'background': 'red',
+                        'color': 'white',
+                        'border': 'none',
+                        'cursor': 'pointer',
+                        'padding': '2px 6px'
+                    })
+                    .on('click', function() {
+                        img.parent().remove();
+                    });
+                const wrapper = $('<div>').css('position', 'relative').append(img, removeBtn);
+                return wrapper;
+            }
+
+            $('#thumbnail').on('change', function(e) {
+                const file = e.target.files[0];
+                previewContainer.find('.thumbnail-preview').remove();
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = $('<img>').attr('src', e.target.result)
+                            .addClass('thumbnail-preview')
+                            .css({
+                                'width': '150px',
+                                'margin': '5px',
+                                'border': '2px solid blue'
+                            })
+                            .attr('title', 'Ảnh chính');
+                        previewContainer.prepend(addRemoveButton(img));
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('#related_images').on('change', function(e) {
+                previewContainer.find('.related-image-preview').remove();
+                const files = e.target.files;
+                $.each(files, function(index, file) {
+                    if (file.type.match('image.*')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = $('<img>').attr('src', e.target.result)
+                                .addClass('related-image-preview')
+                                .css({
+                                    'width': '100px',
+                                    'margin': '5px',
+                                    'border': '1px solid gray'
+                                })
+                                .attr('title', 'Ảnh liên quan');
+                            previewContainer.append(addRemoveButton(img));
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
         });
     </script>
 @endsection

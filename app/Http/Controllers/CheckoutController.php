@@ -11,6 +11,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PendingOrder;
+use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use DateTimeZone;
 
@@ -19,7 +20,15 @@ class CheckoutController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $selectedItemIds = session('checkout_items_ids', []); // Lấy danh sách ID sản phẩm được chọn từ session
+
+        if (empty($selectedItemIds)) {
+            // Nếu không có sản phẩm được chọn, chuyển về trang giỏ hàng
+            return redirect()->route('cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán.');
+        }
+
         $cartItems = CartItem::where('user_id', Auth::id())
+            ->whereIn('id', $selectedItemIds)
             ->with('product')
             ->get()
             ->map(function ($item) {
@@ -131,6 +140,14 @@ class CheckoutController extends Controller
             return redirect()->route('cart')->with('error', 'Không có sản phẩm nào để đặt hàng.');
         }
 
+        // Kiểm tra stock
+        foreach ($cartItems as $item) {
+            $product = Product::find($item['product']['id']);
+            if (!$product || $product->stock < $item['quantity']) {
+                return redirect()->route('cart')->with('error', "Sản phẩm {$item['product']['product_name']} không đủ hàng (còn {$product->stock} sản phẩm).");
+            }
+        }
+
         $pendingOrder = [
             'user_id' => Auth::id(),
             'name' => $request->name,
@@ -158,42 +175,47 @@ class CheckoutController extends Controller
         Log::info('Pending Order Stored', ['order_id' => $orderId]);
 
         if ($request->payment_method === 'cod') {
-        try {
-            $order = DB::transaction(function () use ($request, $totalPrice, $cartItems, $orderId) {
-                $order = Order::create([
-                    'user_id' => Auth::id(),
-                    'name' => $request->name,
-                    'phone' => $request->phone,
-                    'address' => $request->address,
-                    'note' => $request->note,
-                    'payment_method' => $request->payment_method,
-                    'total_price' => $totalPrice,
-                    'status' => 'pending',
-                ]);
-
-                foreach ($cartItems as $item) {
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['product']['id'],
-                        'quantity' => $item['quantity'],
-                        'price' => $item['product']['price_new'],
+            try {
+                $order = DB::transaction(function () use ($request, $totalPrice, $cartItems, $orderId) {
+                    $order = Order::create([
+                        'user_id' => Auth::id(),
+                        'name' => $request->name,
+                        'phone' => $request->phone,
+                        'address' => $request->address,
+                        'note' => $request->note,
+                        'payment_method' => $request->payment_method,
+                        'total_price' => $totalPrice,
+                        'status' => 'Chưa thanh toán',
                     ]);
-                }
 
-                CartItem::whereIn('id', array_column($cartItems, 'id'))->delete();
+                    foreach ($cartItems as $item) {
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'product_id' => $item['product']['id'],
+                            'quantity' => $item['quantity'],
+                            'price' => $item['product']['price_new'],
+                        ]);
 
-                PendingOrder::where('order_id', $orderId)->delete();
+                        // Giảm stock và tăng sold_
+                        Product::where('id', $item['product']['id'])
+                            ->update([
+                                'stock' => DB::raw('stock - ' . $item['quantity']),
+                                'sold' => DB::raw('sold + ' . $item['quantity']),
+                            ]);
+                    }
 
-                return $order;
-            });
+                    CartItem::whereIn('id', array_column($cartItems, 'id'))->delete();
+                    PendingOrder::where('order_id', $orderId)->delete();
 
-            session()->forget(['checkout_items', 'total_price', 'pending_order_id']);
+                    return $order;
+                });
 
-            return redirect()->route('order_success')->with('success', 'Đặt hàng thành công.');
-        } catch (\Exception $e) {
-            Log::error('COD Order Creation Failed', ['error' => $e->getMessage()]);
-            return redirect()->route('checkout')->with('error', 'Lỗi khi tạo đơn hàng. Vui lòng thử lại.');
-        }
+                session()->forget(['checkout_items', 'total_price', 'pending_order_id']);
+                return redirect()->route('order_success')->with('success', 'Đặt hàng thành công.');
+            } catch (\Exception $e) {
+                Log::error('COD Order Creation Failed', ['error' => $e->getMessage()]);
+                return redirect()->route('checkout')->with('error', 'Lỗi khi tạo đơn hàng. Vui lòng thử lại.');
+            }
         } elseif ($request->payment_method === 'momo') {
             return $this->momo_payment($request);
         } elseif ($request->payment_method === 'vnpay') {
@@ -205,13 +227,11 @@ class CheckoutController extends Controller
     public function storeCartItems(Request $request)
     {
         try {
-            // Xác thực dữ liệu
             $request->validate([
                 'selectedItems' => 'required|array',
                 'selectedItems.*' => 'exists:cart_items,id,user_id,' . Auth::id(),
             ]);
 
-            // Lấy danh sách sản phẩm đã chọn
             $selectedItems = $request->input('selectedItems', []);
 
             if (empty($selectedItems)) {
@@ -221,9 +241,8 @@ class CheckoutController extends Controller
                 ], 422);
             }
 
-            // Lấy thông tin giỏ hàng
-            $cartItems = CartItem::whereIn('id', $selectedItems)
-                ->where('user_id', Auth::id())
+            $validCartItems = CartItem::where('user_id', Auth::id())
+                ->whereIn('id', $selectedItems)
                 ->with('product')
                 ->get()
                 ->map(function ($item) {
@@ -240,21 +259,20 @@ class CheckoutController extends Controller
                     ];
                 })->toArray();
 
-            if (empty($cartItems)) {
+            if (empty($validCartItems)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy sản phẩm trong giỏ hàng.'
+                    'message' => 'Không tìm thấy sản phẩm hợp lệ trong giỏ hàng. Vui lòng làm mới trang.'
                 ], 422);
             }
 
-            // Tính tổng giá
             $totalPrice = array_sum(array_map(function ($item) {
                 return $item['quantity'] * $item['product']['price_new'];
-            }, $cartItems));
+            }, $validCartItems));
 
-            // Lưu vào session để sử dụng ở trang checkout
             session([
-                'checkout_items' => $cartItems,
+                'checkout_items' => $validCartItems,
+                'checkout_items_ids' => array_column($validCartItems, 'id'),
                 'total_price' => $totalPrice,
             ]);
 
@@ -263,6 +281,12 @@ class CheckoutController extends Controller
                 'message' => 'Chuyển đến trang thanh toán thành công.',
                 'redirect' => route('checkout')
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error in storeCartItems', ['errors' => $e->errors(), 'selectedItems' => $request->input('selectedItems')]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Một hoặc nhiều sản phẩm đã chọn không hợp lệ. Vui lòng làm mới trang hoặc kiểm tra lại.'
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Lỗi xử lý giỏ hàng: ' . $e->getMessage());
             return response()->json([
@@ -386,7 +410,7 @@ class CheckoutController extends Controller
                         'note' => $pendingOrder['note'],
                         'payment_method' => $pendingOrder['payment_method'],
                         'total_price' => $pendingOrder['total_price'],
-                        'status' => 'paid',
+                        'status' => 'Đã thanh toán',
                         'order_id' => $extraData['pending_order_id'], // Thêm order_id
                     ]);
 
@@ -465,7 +489,7 @@ class CheckoutController extends Controller
                             'note' => $pendingOrder['note'],
                             'payment_method' => $pendingOrder['payment_method'],
                             'total_price' => $pendingOrder['total_price'],
-                            'status' => 'paid',
+                            'status' => 'Đã thanh toán',
                             'order_id' => $pendingOrderId,
                         ]);
 
@@ -476,11 +500,18 @@ class CheckoutController extends Controller
                                 'quantity' => $item['quantity'],
                                 'price' => $item['product']['price_new'],
                             ]);
+
+                            // Giảm stock và tăng sold
+                            Product::where('id', $item['product']['id'])
+                                ->update([
+                                    'stock' => DB::raw('stock - ' . $item['quantity']),
+                                    'sold' => DB::raw('sold + ' . $item['quantity']),
+                                ]);
                         }
 
                         CartItem::whereIn('id', array_column($pendingOrder['cart_items'], 'id'))->delete();
                     }
-                    $order->update(['status' => 'paid']);
+                    $order->update(['status' => 'Đã thanh toán']);
                     PendingOrder::where('order_id', $pendingOrderId)->delete();
                     session()->forget('pending_order_id');
                 });
@@ -492,7 +523,6 @@ class CheckoutController extends Controller
                 return redirect()->route('checkout')->with('error', 'Lỗi khi xử lý đơn hàng.');
             }
         } elseif ($data['resultCode'] == 7002) {
-            // Giao dịch đang chờ xử lý
             Log::info('MoMo Return: Transaction pending', [
                 'order_id' => $pendingOrderId,
                 'resultCode' => $data['resultCode'],
@@ -500,7 +530,6 @@ class CheckoutController extends Controller
             ]);
             return redirect()->route('order_pending')->with('info', 'Giao dịch đang được xử lý. Vui lòng kiểm tra trạng thái đơn hàng sau.');
         } else {
-            // Thanh toán thất bại
             PendingOrder::where('order_id', $pendingOrderId)->delete();
             session()->forget('pending_order_id');
             Log::error('MoMo Return: Payment failed', [
@@ -660,7 +689,7 @@ class CheckoutController extends Controller
             }
 
             $order = Order::where('order_id', $pendingOrderId)->first();
-            if ($order && $order->status !== 'pending') {
+            if ($order && $order->status !== 'Chưa thanh toán') {
                 Log::warning('VNPay Callback: Order already confirmed', ['order_id' => $pendingOrderId, 'status' => $order->status]);
                 $returnData = ['RspCode' => '02', 'Message' => 'Order already confirmed'];
                 return response()->json($returnData, 200);
@@ -676,7 +705,7 @@ class CheckoutController extends Controller
                         'note' => $pendingOrder['note'],
                         'payment_method' => $pendingOrder['payment_method'],
                         'total_price' => $pendingOrder['total_price'],
-                        'status' => 'paid',
+                        'status' => 'Đã thanh toán',
                         'order_id' => $pendingOrderId,
                     ]);
 
@@ -764,7 +793,7 @@ class CheckoutController extends Controller
                             'note' => $pendingOrder['note'],
                             'payment_method' => $pendingOrder['payment_method'],
                             'total_price' => $pendingOrder['total_price'],
-                            'status' => 'paid',
+                            'status' => 'Đã thanh toán',
                             'order_id' => $pendingOrderId,
                         ]);
 
@@ -775,11 +804,18 @@ class CheckoutController extends Controller
                                 'quantity' => $item['quantity'],
                                 'price' => $item['product']['price_new'],
                             ]);
+
+                            // Giảm stock và tăng sold
+                            Product::where('id', $item['product']['id'])
+                                ->update([
+                                    'stock' => DB::raw('stock - ' . $item['quantity']),
+                                    'sold' => DB::raw('sold + ' . $item['quantity']),
+                                ]);
                         }
 
                         CartItem::whereIn('id', array_column($pendingOrder['cart_items'], 'id'))->delete();
                     }
-                    $order->update(['status' => 'paid']);
+                    $order->update(['status' => 'Đã thanh toán']);
                     PendingOrder::where('order_id', $pendingOrderId)->delete();
                     session()->forget('pending_order_id');
                 });
@@ -797,6 +833,29 @@ class CheckoutController extends Controller
                 'message' => $data['vnp_Message'] ?? ''
             ]);
             return redirect()->route('checkout')->with('error', 'Thanh toán không thành công: ' . ($data['vnp_Message'] ?? 'Lỗi không xác định'));
+        }
+    }
+    public function cancelOrder($orderId)
+    {
+        try {
+            DB::transaction(function () use ($orderId) {
+                $order = Order::findOrFail($orderId);
+                if ($order->status !== 'cancelled') {
+                    foreach ($order->orderItems as $item) {
+                        Product::where('id', $item->product_id)
+                            ->update([
+                                'stock' => DB::raw('stock + ' . $item->quantity),
+                                'sold' => DB::raw('sold - ' . $item->quantity),
+                            ]);
+                    }
+                    $order->update(['status' => 'cancelled']);
+                }
+            });
+
+            return redirect()->back()->with('success', 'Đơn hàng đã được hủy.');
+        } catch (\Exception $e) {
+            Log::error('Order Cancellation Failed', ['error' => $e->getMessage(), 'order_id' => $orderId]);
+            return redirect()->back()->with('error', 'Lỗi khi hủy đơn hàng.');
         }
     }
 }

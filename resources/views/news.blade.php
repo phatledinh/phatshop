@@ -8,102 +8,120 @@
                 ['label' => 'Tin tức', 'url' => route('news')],
             ]" />
         </div>
-        <div class="container">
-            <ul class="nav nav-tabs d-flex align-items-center w-100" id="myTab" role="tablist" style="height: 80px;">
-                <li class="nav-item" style="border: 1px solid #ffffff; border-radius: none; background-color: #ffffff"
-                    role="presentation">
-                    <button class="nav-link w-100 h-100 active" id="flashsale-tab" data-bs-toggle="tab"
-                        data-bs-target="#flashsale-tab-pane" type="button" role="tab"
-                        aria-controls="flashsale-tab-pane" aria-selected="true" style="color: black;">Khuyến mãi</button>
-                </li>
-                <li class="nav-item" style="border: 1px solid #ffffff; background-color: #ffffff" role="presentation">
-                    <button class="nav-link w-100 h-100" id="phone-tab" data-bs-toggle="tab"
-                        data-bs-target="#phone-tab-pane" type="button" role="tab" aria-controls="phone-tab-pane"
-                        aria-selected="false" style="color: black;">Đánh giá - Tư vấn</button>
-                </li>
-                <li class="nav-item" style="border: 1px solid #ffffff; border-radius: none; background-color: #ffffff"
-                    role="presentation">
-                    <button class="nav-link w-100 h-100" id="laptop-tab" data-bs-toggle="tab"
-                        data-bs-target="#laptop-tab-pane" type="button" role="tab" aria-controls="laptop-tab-pane"
-                        aria-selected="false" style="color: black;">Thủ thuật</button>
-                </li>
-                <li class="nav-item" style="border: 1px solid #ffffff; border-radius: none; background-color: #ffffff"
-                    role="presentation">
-                    <button class="nav-link w-100 h-100" id="accessory-tab" data-bs-toggle="tab"
-                        data-bs-target="#accessory-tab-pane" type="button" role="tab"
-                        aria-controls="accessory-tab-pane" aria-selected="false" style="color: black;">Hỏi đáp</button>
-                </li>
-            </ul>
-            <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="flashsale-tab-pane" role="tabpanel"
-                    aria-labelledby="flashsale-tab" tabindex="0">
-                    <div class="row rounded py-2" style="background: #ffffff">
-                        <h3 class="fs-1 fw-600">Khuyến mãi</h3>
-                        <div class="col-6">
-                            <div class="item_blog_base">
-                                <a class="thumb" href="#!" title="">
-                                    <img src="{{ asset('images/news/news-1.jpg') }}" alt="">
-                                </a>
-                                <h4 class="fs-2 py-1">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</h4>
-                                <p>Trên tay Nothing Phone (3a) Pro: Thiết kế trong suốt đầy ấn tượng, hiệu năng mạnh mẽ
-                                    trong tầm
-                                    giá</p>
-                                <span><i class="fa-solid fa-clock pe-2"></i>1 ngày trước</span>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="item_blog_base">
-                                        <a class="thumb" href="#!" title="">
-                                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="">
-                                        </a>
-                                        <h4 class="fs-5 py-1">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</h4>
-                                        <span><i class="fa-solid fa-clock pe-2"></i>1 ngày trước</span>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="item_blog_base">
-                                        <a class="thumb" href="#!" title="">
-                                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="">
-                                        </a>
-                                        <h4 class="fs-5 py-1">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</h4>
-                                        <span><i class="fa-solid fa-clock pe-2"></i>1 ngày trước</span>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="item_blog_base">
-                                        <a class="thumb" href="#!" title="">
-                                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="">
-                                        </a>
-                                        <h4 class="fs-5 py-1">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</h4>
-                                        <span><i class="fa-solid fa-clock pe-2"></i>1 ngày trước</span>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="item_blog_base">
-                                        <a class="thumb" href="#!" title="">
-                                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="">
-                                        </a>
-                                        <h4 class="fs-5 py-1">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</h4>
-                                        <span><i class="fa-solid fa-clock pe-2"></i>1 ngày trước</span>
-                                    </div>
-                                </div>
+        <div class="container p-2" style="background-color: #ffffff; border-radius: 25px">
+            <h3 class="fs-1 fw-600">Khuyến mãi</h3>
+            <div class="row">
+                @if (isset($saleNews[0]))
+                    <div class="col-6">
+                        <div class="item_blog_base">
+                            <a class="thumb" href="{{ route('detailNews', $saleNews[0]->id) }}"
+                                title="{{ $saleNews[0]->title }}">
+                                <img src="{{ $saleNews[0]->image }}" alt="">
+                            </a>
+                            <h4 class="fs-2 py-1"
+                                style="font-size: 24px !important; font-weight: 600 !important;line-height: 24px !important;display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; text-overflow: ellipsis;">
+                                {{ $saleNews[0]->title }}</h4>
+                            {!! $saleNews[0]->excerpt !!}
+                            <div class="d-flex">
+                                <span><i
+                                        class="fa-solid fa-clock pe-2"></i>{{ $saleNews[0]->created_at->diffForHumans() }}</span>
+                                <span class="ps-3"><i class="fa-solid fa-user pe-2"></i>{{ $saleNews[0]->author }}</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="tab-pane fade" id="phone-tab-pane" role="tabpanel" aria-labelledby="phone-tab"
-                    tabindex="0">
+                @endif
 
+                <div class="col-6">
+                    <div class="row">
+                        @foreach ($saleNews->slice(1, 4) as $news)
+                            <div class="col-6">
+                                <div class="item_blog_base">
+                                    <a class="thumb" href="{{ route('detailNews', $news->id) }}"
+                                        title="{{ $news->title }}">
+                                        <img src="{{ $news->image }}" alt="">
+                                    </a>
+                                    <h4 class="fs-5 py-1"
+                                        style="font-size: 16px !important; font-weight: 600 !important;line-height: 24px !important;display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; text-overflow: ellipsis;">
+                                        {{ $news->title }}</h4>
+                                    <div class="d-flex">
+                                        <span><i
+                                                class="fa-solid fa-clock pe-2"></i>{{ $saleNews[0]->created_at->diffForHumans() }}</span>
+                                        <span class="ps-3"><i
+                                                class="fa-solid fa-user pe-2"></i>{{ $saleNews[0]->author }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="tab-pane fade" id="laptop-tab-pane" role="tabpanel" aria-labelledby="laptop-tab"
-                    tabindex="0">
+            </div>
 
+        </div>
+        <div class="container p-2 mt-3" style="background-color: #ffffff; border-radius: 25px">
+            <h3 class="fs-1 fw-600">Bài viết nổi bật</h3>
+            <div class="row" style="background-color: #ffffff; border-radius: 25px">
+                @foreach ($suggesNews as $news)
+                    <div class="col-lg-3 col-md-3 col-8">
+                        <div class="item_blog_base">
+                            <a class="thumb" href="{{ route('detailNews', $news->id) }}" title="">
+                                <img src="{{ asset($news->image) }}" alt="" style="height: 162px;">
+                            </a>
+                            <h4 class="fs-2 py-1"
+                                style="font-size: 20px !important; font-weight: 600 !important;line-height: 24px !important;display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; text-overflow: ellipsis;">
+                                {{ $news->title }}</h4>
+                            {!! $news->excerpt !!}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        <div class="container p-2 mt-3" style="background-color: #ffffff; border-radius: 25px">
+            <div class="row">
+                <div class="col-7">
+                    <h3 class="fs-1 fw-600">Tin tức</h3>
+                    @foreach ($topNews as $news)
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-3">
+                                    <a class="thumb" href="{{ route('detailNews', $news->id) }}" title="">
+                                        <img src="{{ asset($news->image) }}" alt="" style="height: 162px;">
+                                    </a>
+                                </div>
+                                <div class="col-9">
+                                    <h4
+                                        style="font-size: 20px !important; font-weight: 600 !important;line-height: 24px !important;display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; text-overflow: ellipsis;">
+                                        {{ $news->title }}</h4>
+                                    {!! $news->excerpt !!}
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="tab-pane fade" id="accessory-tab-pane" role="tabpanel" aria-labelledby="accessory-tab"
-                    tabindex="0">
-
+                <div class="col-5">
+                    <div class="p-1" style="border: 0 solid #e5e7eb; border-radius: 25px">
+                        <h3 class="fs-1 fw-600 text-center">Bài viết mới nhất</h3>
+                        @foreach ($newNews as $news)
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <a class="thumb" href="{{ route('detailNews', $news->id) }}" title="">
+                                            <img src="{{ asset($news->image) }}">
+                                        </a>
+                                    </div>
+                                    <div class="col-9">
+                                        <h4
+                                            style="font-size: 20px !important; font-weight: 600 !important;line-height: 24px !important;display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; text-overflow: ellipsis;">
+                                            {{ $news->title }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>

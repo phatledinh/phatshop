@@ -10,15 +10,34 @@ use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    // Hiển thị giỏ hàng
     public function viewCart()
     {
-        $cartItems = $this->getCartItems();
+        $cartItems = $this->getCartItems(); // Lấy danh sách từ cơ sở dữ liệu
         $totalPrice = $this->calculateTotal();
+
+        // Làm mới session checkout_items và checkout_items_ids dựa trên dữ liệu hiện tại
+        $itemIds = $cartItems->pluck('id')->toArray();
+        session([
+            'checkout_items' => $cartItems->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'product_name' => $item->product->product_name,
+                        'thumbnail' => $item->product->thumbnail,
+                        'price_new' => $item->product->price_new,
+                        'price_old' => $item->product->price_old,
+                    ],
+                    'quantity' => $item->quantity,
+                ];
+            })->toArray(),
+            'checkout_items_ids' => $itemIds,
+            'total_price' => $totalPrice,
+        ]);
+
         return view('cart', compact('cartItems', 'totalPrice'));
     }
 
-    // Thêm sản phẩm vào giỏ hàng
     public function addToCart(Request $request)
     {
         try {
@@ -69,6 +88,46 @@ class CartController extends Controller
         }
     }
 
+    public function remove(Request $request, $id)
+    {
+        $cartItem = $this->findCartItem($id);
+        if ($cartItem) {
+            Log::info('Removing cart item', ['cart_item_id' => $id, 'user_id' => Auth::id(), 'cart_id' => session('cart_id')]);
+            $cartItem->delete();
+
+            // Cập nhật session checkout_items và checkout_items_ids
+            $checkoutItems = session('checkout_items', []);
+            $checkoutItems = array_filter($checkoutItems, fn($item) => $item['id'] != $id);
+            $checkoutItemIds = session('checkout_items_ids', []);
+            $checkoutItemIds = array_diff($checkoutItemIds, [$id]);
+
+            session([
+                'checkout_items' => $checkoutItems,
+                'checkout_items_ids' => $checkoutItemIds,
+                'total_price' => array_sum(array_map(fn($item) => $item['quantity'] * $item['product']['price_new'], $checkoutItems))
+            ]);
+
+            $cartItems = $this->getCartItems();
+            $total = $this->calculateTotal();
+            $count = Auth::check()
+                ? CartItem::where('user_id', Auth::id())->distinct('product_id')->count('product_id')
+                : CartItem::where('cart_id', $this->getCartId())->distinct('product_id')->count('product_id');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sản phẩm đã được xóa khỏi giỏ hàng!',
+                'total' => $total,
+                'count' => $count
+            ]);
+        }
+
+        Log::warning('Cart item not found', ['cart_item_id' => $id, 'user_id' => Auth::id(), 'cart_id' => session('cart_id')]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Không tìm thấy sản phẩm trong giỏ hàng!'
+        ], 404);
+    }
+
     public function removeSelected(Request $request)
     {
         try {
@@ -91,6 +150,18 @@ class CartController extends Controller
 
             $deletedCount = $query->whereIn('id', $itemIds)->delete();
 
+            // Cập nhật session checkout_items
+            $checkoutItems = session('checkout_items', []);
+            $checkoutItems = array_filter($checkoutItems, fn($item) => !in_array($item['id'], $itemIds));
+            $checkoutItemIds = session('checkout_items_ids', []);
+            $checkoutItemIds = array_diff($checkoutItemIds, $itemIds);
+
+            session([
+                'checkout_items' => $checkoutItems,
+                'checkout_items_ids' => $checkoutItemIds,
+                'total_price' => array_sum(array_map(fn($item) => $item['quantity'] * $item['product']['price_new'], $checkoutItems))
+            ]);
+
             Log::info('Removed selected cart items', [
                 'user_id' => Auth::id(),
                 'cart_id' => session('cart_id'),
@@ -100,7 +171,6 @@ class CartController extends Controller
 
             $cartItems = $this->getCartItems();
             $total = $this->calculateTotal();
-            // Sửa count để dùng distinct('product_id')
             $count = Auth::check()
                 ? CartItem::where('user_id', Auth::id())->distinct('product_id')->count('product_id')
                 : CartItem::where('cart_id', $this->getCartId())->distinct('product_id')->count('product_id');
@@ -121,35 +191,6 @@ class CartController extends Controller
                 'message' => 'Có lỗi xảy ra khi xóa các sản phẩm: ' . $e->getMessage()
             ], 500);
         }
-    }
-
-    public function remove(Request $request, $id)
-    {
-        $cartItem = $this->findCartItem($id);
-        if ($cartItem) {
-            Log::info('Removing cart item', ['cart_item_id' => $id, 'user_id' => Auth::id(), 'cart_id' => session('cart_id')]);
-            $cartItem->delete();
-
-            $cartItems = $this->getCartItems();
-            $total = $this->calculateTotal();
-            // Sửa count để dùng distinct('product_id')
-            $count = Auth::check()
-                ? CartItem::where('user_id', Auth::id())->distinct('product_id')->count('product_id')
-                : CartItem::where('cart_id', $this->getCartId())->distinct('product_id')->count('product_id');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Sản phẩm đã được xóa khỏi giỏ hàng!',
-                'total' => $total,
-                'count' => $count
-            ]);
-        }
-
-        Log::warning('Cart item not found', ['cart_item_id' => $id, 'user_id' => Auth::id(), 'cart_id' => session('cart_id')]);
-        return response()->json([
-            'success' => false,
-            'message' => 'Không tìm thấy sản phẩm trong giỏ hàng!'
-        ], 404);
     }
 
     public function update(Request $request, $id)
@@ -199,7 +240,6 @@ class CartController extends Controller
         ], 404);
     }
 
-    // Gộp giỏ hàng sau khi đăng nhập
     public function mergeCartAfterLogin()
     {
         if (Auth::check() && session()->has('cart_id')) {
@@ -209,6 +249,7 @@ class CartController extends Controller
             $guestCartItems = CartItem::where('cart_id', $cartId)->get();
 
             try {
+                DB::beginTransaction();
                 foreach ($guestCartItems as $guestItem) {
                     $existingItem = CartItem::where('user_id', $userId)
                         ->where('product_id', $guestItem->product_id)
@@ -224,20 +265,38 @@ class CartController extends Controller
                         $guestItem->save();
                     }
                 }
+                DB::commit();
+                session()->forget('cart_id');
             } catch (\Exception $e) {
+                DB::rollBack();
                 Log::error('Error merging cart', ['error' => $e->getMessage()]);
             }
 
-            session()->forget('cart_id');
-        } else {
-            Log::warning('No cart merge needed', [
-                'user_id' => Auth::id(),
-                'has_cart_id' => session()->has('cart_id')
+            // Cập nhật session checkout_items sau khi hợp nhất
+            $checkoutItems = session('checkout_items', []);
+            $checkoutItemIds = session('checkout_items_ids', []);
+            $updatedCartItems = $this->getCartItems()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'product_name' => $item->product->product_name,
+                        'thumbnail' => $item->product->thumbnail,
+                        'price_new' => $item->product->price_new,
+                        'price_old' => $item->product->price_old,
+                    ],
+                    'quantity' => $item->quantity,
+                ];
+            })->toArray();
+
+            $updatedCheckoutItems = array_filter($updatedCartItems, fn($item) => in_array($item['id'], $checkoutItemIds));
+            session([
+                'checkout_items' => $updatedCheckoutItems,
+                'total_price' => array_sum(array_map(fn($item) => $item['quantity'] * $item['product']['price_new'], $updatedCheckoutItems))
             ]);
         }
     }
 
-    // Tính tổng tiền giỏ hàng
     private function calculateTotal()
     {
         return $this->getCartItems()->sum(function ($item) {
@@ -282,14 +341,15 @@ class CartController extends Controller
         return CartItem::where('cart_id', $cartId)->find($id);
     }
 
-    // Debug truy vấn cart_items
-    private function debugCartItemsQuery()
+    public function debugCartItemsQuery()
     {
         if (Auth::check()) {
-            return DB::table('cart_items')->where('user_id', Auth::id())->get()->toArray();
+            $items = DB::table('cart_items')->where('user_id', Auth::id())->get()->toArray();
+        } else {
+            $cartId = $this->getCartId();
+            $items = DB::table('cart_items')->where('cart_id', $cartId)->get()->toArray();
         }
-        $cartId = $this->getCartId();
-        return DB::table('cart_items')->where('cart_id', $cartId)->get()->toArray();
+        Log::info('Cart items debug:', ['items' => $items]);
+        return $items;
     }
-
 }

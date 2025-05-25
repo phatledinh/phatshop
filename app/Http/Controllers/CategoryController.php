@@ -50,4 +50,8 @@ class CategoryController extends Controller
 
         return response()->json(['products' => $formattedProducts]);
     }
+    public function listCategory(){
+        $categories = Category::with('parent')->get();
+        return view('admin/pages/Category/listCategory', compact('categories'));
+    }
 }

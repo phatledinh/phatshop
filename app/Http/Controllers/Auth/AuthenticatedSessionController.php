@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Log;
+
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -24,14 +25,19 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-
     public function store(LoginRequest $request): RedirectResponse
     {
         try {
             $request->authenticate();
             $request->session()->regenerate();
             (new CartController)->mergeCartAfterLogin();
-            return redirect()->route('home'); // Luôn về /home
+
+            // Kiểm tra vai trò và điều hướng
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect()->intended(route('admin'));
+            }
+            return redirect()->intended(route('home'));
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());
             return redirect()->route('login')->withErrors(['error' => 'Đăng nhập thất bại, vui lòng thử lại.']);

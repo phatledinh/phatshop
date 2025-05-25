@@ -460,39 +460,20 @@
         <div class="container">
             <div class="row" style="background-color: #ffffff; border-radius: 25px">
                 <h2 class="sale-product-title py-2">Tin tức mới nhất</h2>
-                <div class="col-lg-3 col-md-3 col-8">
-                    <div class="item_blog_base">
-                        <a class="thumb" href="#!" title="">
-                            <img src="{{ asset('images/news/news-1.jpg') }}" alt="" style="height: 162px;">
-                        </a>
-                        <p>Trên tay Nothing Phone (3a) Pro: Thiết kế trong suốt đầy ấn tượng, hiệu năng mạnh mẽ trong tầm
-                            giá</p>
+                @foreach ($saleNews as $news)
+                    <div class="col-lg-3 col-md-3 col-8">
+                        <div class="item_blog_base">
+                            <a class="thumb" href="{{ route('detailNews', $news->id) }}" title="">
+                                <img src="{{ asset($news->image) }}" alt="" style="height: 162px;">
+                            </a>
+                            <h4 class="fs-2 py-1"
+                                style="font-size: 20px !important; font-weight: 600 !important;line-height: 24px !important;display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; text-overflow: ellipsis;">
+                                {{ $news->title }}</h4>
+                            {!! $news->excerpt !!}
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-3 col-md-3 col-8">
-                    <div class="item_blog_base">
-                        <a class="thumb" href="#!" title="">
-                            <img src="{{ asset('images/news/news-2.jpg') }}" alt="">
-                        </a>
-                        <p>Số máy iPhone bắt đầu bằng chữ M có ý nghĩa gì? Cách nhận biết</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-3 col-8">
-                    <div class="item_blog_base">
-                        <a class="thumb" href="#!" title="">
-                            <img src="{{ asset('images/news/news-3.jpg') }}" alt="">
-                        </a>
-                        <p>OPPO Reno14 series sẽ có màn hình phẳng, camera zoom tiềm vọng theo rò rỉ mới</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-3 col-8">
-                    <div class="item_blog_base">
-                        <a class="thumb" href="#!" title="">
-                            <img src="{{ asset('images/news/news-4.jpg') }}" alt="">
-                        </a>
-                        <p>Tổng Hợp 50+ Hình Nền Máy Tính Đẹp: 4K, Cute, Anime [Tải Miễn Phí]</p>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>

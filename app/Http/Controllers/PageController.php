@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product; // Đảm bảo đã import model Product
-
+use App\Models\Product;
+use App\Models\User;
+use App\Models\Category;
+use App\Models\News;
+use Illuminate\Support\Facades\DB;
 class PageController extends Controller
 {
     public function home() {
@@ -45,6 +48,10 @@ class PageController extends Controller
         $recommendedProduct = Product::where('suggestion', '1')
                                 ->limit(8)
                                 ->get();
+
+        $saleNews = News::where('category_id', '1')
+                                ->limit(4)
+                                ->get();
         return view('home', compact(
             'flashsaleProducts',
             'phoneProducts',
@@ -52,7 +59,8 @@ class PageController extends Controller
             'accessoryProducts',
             'watchProducts',
             "suggestionProducts",
-            'recommendedProduct'
+            'recommendedProduct',
+            'saleNews'
         ));
     }
     public function about() {
@@ -60,9 +68,6 @@ class PageController extends Controller
     }
     public function contact() {
         return view('contact');
-    }
-    public function news() {
-        return view('news');
     }
     public function ask() {
         return view('ask');
@@ -80,6 +85,27 @@ class PageController extends Controller
         return view('order_success');
     }
     public function dashboard() {
-        return view('admin/pages/home');
+        $products = Product::orderBy('sold', 'desc')
+            ->take(20)
+            ->get();
+
+        $totalCustomer = User::where('role', 'client')->count();
+        $totalCategory = Category::count();
+        $totalProduct = Product::count();
+        $totalNews = News::count();
+        $revenueData = [
+            50000000, 60000000, 75000000, 40000000, 80000000, 90000000,
+            65000000, 70000000, 55000000, 85000000, 95000000, 100000000
+        ]; // Dữ liệu doanh thu mẫu cho 12 tháng
+
+        $topCustomers = DB::table('orders')
+        ->select('name') // Lấy tên khách hàng từ cột name trong bảng orders
+        ->selectRaw('SUM(total_price) as total_purchase') // Tính tổng giá trị đơn hàng
+        ->whereMonth('created_at', now()->month) // Lọc đơn hàng trong tháng hiện tại
+        ->groupBy('name') // Nhóm theo tên khách hàng
+        ->orderByDesc('total_purchase') // Sắp xếp theo tổng giá trị giảm dần
+        ->take(10) // Lấy 10 khách hàng đầu
+        ->get();
+        return view('admin/pages/home', compact('products', 'totalCustomer', 'totalCategory', 'totalProduct', 'totalNews', 'revenueData', 'topCustomers'));
     }
 }

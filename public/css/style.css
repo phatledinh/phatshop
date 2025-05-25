@@ -546,6 +546,20 @@ header {
     border-radius: 0px;
     background-color: red;
 }
+.detailsPage .content-wrapper {
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    min-height: 50vh; /* Đảm bảo chiều cao tối thiểu để căn giữa dọc hiệu quả */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.detailsPage .content {
+    max-width: 800px; /* Giới hạn chiều rộng nội dung để không bị quá rộng */
+    width: 100%;
+    text-align: justify; /* Căn đều nội dung văn bản */
+}
 /*-------------------------------------------------------------------- News -------------------------------------*/
 /*-------------------------------------------------------------------- Login -------------------------------------*/
 .account-page {
@@ -1020,14 +1034,6 @@ ul.breadcrumb li a:hover {
 }
 .giftbox .row .col-12 {
     padding-top: 20px;
-}
-.giftbox-icon {
-    position: absolute;
-    top: -20px;
-    left: 10px;
-    padding: 10px;
-    border-radius: 50%;
-    background-color: #ffffff;
 }
 /*-------------------------------------------------------------------- Detail -------------------------------------*/
 /*-------------------------------------------------------------------- Cart -------------------------------------*/

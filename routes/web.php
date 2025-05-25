@@ -8,12 +8,17 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
+use App\Models\Category;
 use App\Models\Order;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/gioi-thieu', [PageController::class, 'about'])->name('about');
 Route::get('/lien-he', [PageController::class, 'contact'])->name('contact');
-Route::get('/tin-tuc', [PageController::class, 'news'])->name('news');
+Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news');
+Route::get('/news/{id}', [NewsController::class, 'show'])->name('detailNews');
 Route::get('/cau-hoi-thuong-gap', [PageController::class, 'ask'])->name('ask');
 Route::get('/tuyen-dung', [PageController::class, 'cruit'])->name('cruit');
 Route::get('/gio-hang', [CartController::class, 'viewCart'])->name('cart.view');
@@ -43,6 +48,7 @@ Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/order/success', function () {
     return view('order_success');
 })->name('order_success');
+Route::post('/order/{orderId}/cancel', [CheckoutController::class, 'cancelOrder'])->name('order.cancel');
 
 Route::get('/admin', [PageController::class, 'dashboard'])->name('admin');
 Route::get('/admin/danh-sach-san-pham', [ProductController::class, 'listProduct'])->name('listProduct');
@@ -50,6 +56,18 @@ Route::get('/admin/them-san-pham', [ProductController::class, 'create'])->name('
 Route::post('/admin/them-san-pham', [ProductController::class, 'store'])->name('products.store');
 Route::post('/upload-image', [ProductController::class, 'uploadImage'])->name('upload.image');
 Route::get('/get-brands-by-category', [ProductController::class, 'getBrandsByCategory'])->name('get.brands.by.category');
+Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
+Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
+
+Route::get('/admin/danh-sach-danh-muc', [CategoryController::class, 'listCategory'])->name('listCategory');
+Route::get('/admin/them-tin-tuc', [NewsController::class, 'create'])->name('news.create');
+Route::get('/admin/khach-hang', [UserController::class, 'listCustomer'])->name('listCustomer');
+Route::get('/admin/don-hang', [OrderController::class, 'listOrder'])->name('listOrder');
+
+Route::get('/admin/news/create', [NewsController::class, 'create'])->name('news.create');
+Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
+Route::post('/admin/upload-image', [NewsController::class, 'uploadImage'])->name('upload.image');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
