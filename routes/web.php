@@ -60,15 +60,31 @@ Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('pr
 Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
 Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
 
-Route::get('/admin/danh-sach-danh-muc', [CategoryController::class, 'listCategory'])->name('listCategory');
-Route::get('/admin/them-tin-tuc', [NewsController::class, 'create'])->name('news.create');
+Route::prefix('admin')->group(function () {
+    Route::get('/danh-sach-danh-muc', [CategoryController::class, 'listCategory'])->name('listCategory');
+    Route::get('/them-danh-muc', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('/them-danh-muc', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('/sua-danh-muc/{id}', [CategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('/sua-danh-muc/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/xoa-danh-muc/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::get('/danh-muc/{slug}', [CategoryController::class, 'show'])->name('categories.show');
+});
+
+
 Route::get('/admin/khach-hang', [UserController::class, 'listCustomer'])->name('listCustomer');
 Route::get('/admin/don-hang', [OrderController::class, 'listOrder'])->name('listOrder');
 
-Route::get('/admin/news/create', [NewsController::class, 'create'])->name('news.create');
-Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
-Route::post('/admin/upload-image', [NewsController::class, 'uploadImage'])->name('upload.image');
+Route::prefix('admin')->group(function () {
+    Route::get('/danh-sach-tin-tuc', [NewsController::class, 'listNews'])->name('listNews');
+    Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
+    Route::post('/news', [NewsController::class, 'store'])->name('news.store');
+    Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit');
+    Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
+    Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
+    Route::post('/upload-image', [NewsController::class, 'uploadImage'])->name('upload.image');
+});
 
+Route::patch('admin/orders/{id}/update-status', [OrderController::class, 'updateStatus'])->name('admin.orders.update_status');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

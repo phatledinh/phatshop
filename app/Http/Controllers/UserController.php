@@ -10,7 +10,7 @@ class UserController extends Controller
     public function listCustomer()
     {
         $customers = User::where('role', 'client')
-            ->withCount('orders') // Đếm số đơn hàng
+            ->withCount('orders') 
             ->get();
 
         return view('admin/pages/Customer', compact('customers'));

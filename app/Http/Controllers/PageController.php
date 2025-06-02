@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 class PageController extends Controller
 {
     public function home() {
-        // Lấy 12 sản phẩm khuyến mãi
         $flashsaleProducts = Product::where('discount', '>', 0)
                                     ->inRandomOrder()
                                     ->limit(12)
@@ -93,19 +92,29 @@ class PageController extends Controller
         $totalCategory = Category::count();
         $totalProduct = Product::count();
         $totalNews = News::count();
-        $revenueData = [
-            50000000, 60000000, 75000000, 40000000, 80000000, 90000000,
-            65000000, 70000000, 55000000, 85000000, 95000000, 100000000
-        ]; // Dữ liệu doanh thu mẫu cho 12 tháng
+
+        $revenueData = DB::table('orders')
+            ->selectRaw('MONTH(created_at) as month, SUM(total_price) as total_revenue')
+            ->where('delivery_status', 'Đã giao')
+            ->whereYear('created_at', 2025)
+            ->groupByRaw('MONTH(created_at)')
+            ->orderBy('month')
+            ->get()
+            ->pluck('total_revenue')
+            ->toArray();
+
+        // Ensure revenueData has 12 elements (one for each month), filling missing months with 0
+        $revenueData = array_replace(array_fill(0, 12, 0), array_map('floatval', $revenueData));
 
         $topCustomers = DB::table('orders')
-        ->select('name') // Lấy tên khách hàng từ cột name trong bảng orders
-        ->selectRaw('SUM(total_price) as total_purchase') // Tính tổng giá trị đơn hàng
-        ->whereMonth('created_at', now()->month) // Lọc đơn hàng trong tháng hiện tại
-        ->groupBy('name') // Nhóm theo tên khách hàng
-        ->orderByDesc('total_purchase') // Sắp xếp theo tổng giá trị giảm dần
-        ->take(10) // Lấy 10 khách hàng đầu
-        ->get();
+            ->select('name')
+            ->selectRaw('SUM(total_price) as total_purchase')
+            ->whereMonth('created_at', now()->month)
+            ->groupBy('name')
+            ->orderByDesc('total_purchase')
+            ->take(10)
+            ->get();
+
         return view('admin/pages/home', compact('products', 'totalCustomer', 'totalCategory', 'totalProduct', 'totalNews', 'revenueData', 'topCustomers'));
     }
 }

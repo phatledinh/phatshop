@@ -299,35 +299,28 @@ class CheckoutController extends Controller
     {
         $orderId = session('pending_order_id');
         if (!$orderId) {
-            Log::error('MoMo Payment Failed: Missing pending order ID');
             return redirect()->route('checkout')->with('error', 'Dữ liệu đơn hàng không hợp lệ.');
         }
-
         $pendingOrderRecord = PendingOrder::where('order_id', $orderId)->first();
         if (!$pendingOrderRecord) {
-            Log::error('MoMo Payment Failed: Pending order not found', ['order_id' => $orderId]);
             return redirect()->route('checkout')->with('error', 'Dữ liệu đơn hàng không hợp lệ.');
         }
-
         $pendingOrder = json_decode($pendingOrderRecord->order_data, true);
         $amount = (int) $pendingOrder['total_price'];
-
         $config = config('services.momo');
         $endpoint = $config['endpoint'] ?? 'https://test-payment.momo.vn/v2/gateway/api/create';
         $partnerCode = $config['partner_code'];
         $accessKey = $config['access_key'];
         $secretKey = $config['secret_key'];
-
         $orderInfo = "Thanh toán qua MoMo";
         $orderId = time() . "_" . Str::random(6);
         $redirectUrl = env('MOMO_REDIRECT_URL', route('momo.return'));
         $ipnUrl = env('MOMO_IPN_URL', route('order_success'));
         $extraData = base64_encode(json_encode(['pending_order_id' => session('pending_order_id')]));
         $requestId = time() . "";
-        $requestType = config('services.momo.request_type', 'payWithATM'); // Lấy từ config
+        $requestType = config('services.momo.request_type', 'payWithATM');
 
         if ($amount <= 0) {
-            Log::error('MoMo Payment Failed: Invalid amount', ['amount' => $amount]);
             return redirect()->route('checkout')->with('error', 'Số tiền thanh toán không hợp lệ.');
         }
 
@@ -350,7 +343,6 @@ class CheckoutController extends Controller
             'signature' => $signature
         ];
 
-        Log::info('MoMo Payment Request', ['data' => $data]);
         $result = $this->execPostRequest($endpoint, json_encode($data));
         if ($result === false) {
             Log::error('MoMo Payment Failed: cURL returned false');
@@ -358,14 +350,12 @@ class CheckoutController extends Controller
         }
 
         $jsonResult = json_decode($result, true);
-        Log::info('MoMo Payment Response', ['response' => $jsonResult]);
 
         if (isset($jsonResult['payUrl']) && !empty($jsonResult['payUrl'])) {
             return redirect()->to($jsonResult['payUrl']);
         }
 
         $errorMessage = $jsonResult['message'] ?? 'Không thể khởi tạo thanh toán MoMo.';
-        Log::error('MoMo Payment Failed', ['response' => $jsonResult]);
         return redirect()->route('checkout')->with('error', $errorMessage);
     }
 
@@ -393,7 +383,6 @@ class CheckoutController extends Controller
         $pendingOrder = json_decode($pendingOrderRecord->order_data, true);
         $cartItems = $pendingOrder['cart_items'];
 
-        // Kiểm tra giao dịch trùng lặp
         if (Order::where('order_id', $extraData['pending_order_id'])->exists()) {
             Log::warning('MoMo Callback: Order already processed', ['order_id' => $extraData['pending_order_id']]);
             return response()->json(['success' => true]);
@@ -411,7 +400,7 @@ class CheckoutController extends Controller
                         'payment_method' => $pendingOrder['payment_method'],
                         'total_price' => $pendingOrder['total_price'],
                         'status' => 'Đã thanh toán',
-                        'order_id' => $extraData['pending_order_id'], // Thêm order_id
+                        'order_id' => $extraData['pending_order_id'],
                     ]);
 
                     foreach ($cartItems as $item) {
@@ -501,7 +490,6 @@ class CheckoutController extends Controller
                                 'price' => $item['product']['price_new'],
                             ]);
 
-                            // Giảm stock và tăng sold
                             Product::where('id', $item['product']['id'])
                                 ->update([
                                     'stock' => DB::raw('stock - ' . $item['quantity']),
@@ -562,7 +550,6 @@ class CheckoutController extends Controller
             return redirect()->route('checkout')->with('error', 'Giỏ hàng trống.');
         }
 
-        // Đảm bảo $amount là số nguyên
         $amount = (int) $amount;
         if ($amount <= 0) {
             Log::error('VNPay Payment Failed: Invalid amount', ['amount' => $amount, 'order_id' => $orderId]);
@@ -581,13 +568,12 @@ class CheckoutController extends Controller
         $vnp_Url = $config['endpoint'] ?? 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
         $vnp_ReturnUrl = env('VNPAY_RETURN_URL', route('vnpay.return'));
 
-        // Đặt múi giờ là Asia/Ho_Chi_Minh (GMT+7) để đồng bộ với VNPay
         date_default_timezone_set('Asia/Ho_Chi_Minh');
 
         $vnp_TxnRef = $orderId;
         $vnp_OrderInfo = "Thanh toán đơn hàng #$orderId";
         $vnp_OrderType = config('services.vnpay.order_type', 'billpayment');
-        $vnp_Amount = $amount * 100; // VNPay requires amount in VND, multiplied by 100
+        $vnp_Amount = $amount * 100;
         $vnp_Locale = in_array($language, ['vn', 'en']) ? $language : 'vn';
         $vnp_IpAddr = request()->ip();
         $vnp_CreateDate = date('YmdHis');
@@ -805,7 +791,6 @@ class CheckoutController extends Controller
                                 'price' => $item['product']['price_new'],
                             ]);
 
-                            // Giảm stock và tăng sold
                             Product::where('id', $item['product']['id'])
                                 ->update([
                                     'stock' => DB::raw('stock - ' . $item['quantity']),

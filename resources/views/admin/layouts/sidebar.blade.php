@@ -23,7 +23,7 @@
                 <div class="collapse" id="collapseCategory" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
                         <a class="nav-link" href="{{ route('listCategory') }}">Danh sách danh mục</a>
-                        <a class="nav-link" href="#!">Thêm danh mục</a>
+                        <a class="nav-link" href="{{ route('categories.create') }}">Thêm danh mục</a>
                     </nav>
                 </div>
 
@@ -58,7 +58,7 @@
                 </a>
                 <div class="collapse" id="collapseNews" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
-                        <a class="nav-link" href="#!">Danh sách tin tức</a>
+                        <a class="nav-link" href="{{ route('listNews') }}">Danh sách tin tức</a>
                         <a class="nav-link" href="{{ route('news.create') }}">Thêm tin tức</a>
                     </nav>
                 </div>

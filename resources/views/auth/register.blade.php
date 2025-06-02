@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('Layouts.main')
 
 @section('content')
     <div class="main-wrapper py-5" style="background-color: #fcd7db">
@@ -7,6 +7,17 @@
                 <div class="account-box">
                     <div class="account-wrapper">
                         <h3 class="account-title">Đăng ký</h3>
+
+                        <!-- Hiển thị lỗi chung -->
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
                         <!-- Form đăng ký -->
                         <form method="POST" action="{{ route('register') }}">
@@ -77,6 +88,22 @@
                                 @enderror
                             </div>
 
+                            <div class="form-group">
+                                <label for="captcha">Mã xác nhận</label>
+                                <div class="d-flex">
+                                    {!! Captcha::img('default', ['class' => 'captcha-img', 'id' => 'captcha-img']) !!}
+                                    <button type="button" class="btn btn-danger mt-2 ms-3"
+                                        onclick="document.getElementById('captcha-img').src='{{ url('/captcha/default') }}?'+Math.random()"><i
+                                            class="fa-solid fa-rotate-right"></i> Làm
+                                        mới</button>
+                                </div>
+
+                                <input type="text" class="form-control mt-2 @error('captcha') is-invalid @enderror"
+                                    name="captcha" placeholder="Nhập mã xác nhận" required />
+                                @error('captcha')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <!-- Submit Button -->
                             <div class="form-group text-center">
                                 <button class="btn btn-primary account-btn" type="submit">
@@ -96,4 +123,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Tích hợp Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endsection
